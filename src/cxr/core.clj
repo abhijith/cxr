@@ -1,4 +1,5 @@
 (ns cxr.core
+  (:gen-class)
   (:use [clojure.contrib.seq-utils :only (indexed)])
   (:use [clojure.contrib.io :only (read-lines)])
   (:use [clojure.contrib.sql :as sql])
