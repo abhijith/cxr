@@ -1,4 +1,5 @@
 (ns cxr.tables
+  (:gen-class)
   (:use [cxr.environment :only (db-config)])
   (:use [clojure.contrib.sql :as sql]))
   
@@ -71,3 +72,6 @@
      (create-indexed-file)
      (create-indexed-word)
      (create-doc-index))))
+
+(defn -main []
+  (create-tables))
