@@ -4,7 +4,6 @@
   (:use [clojure.contrib.io :only (read-lines)])
   (:use [clojure.contrib.sql :as sql])
   (:use [cxr.environment :only (db-config)])
-  (:use [cxr.db :only (get-related-words)])
   (:use [clj-sql.core :only (insert-record)])
   (:use [cxr.sqlwrap :only (find-record create-record qs select)])
   (:use [cxr.tokenizer :as tokenizer])
@@ -52,23 +51,6 @@
                            :word_id (:id (known-word word))
                            :line num
                            :offset offset}))
-
-(defn related-words
-  [word]
-  (if (known-word? word)
-    (get-related-words word)))
-
-(defn search-helper
-  [word func]
-  (frequencies (flatten (map keyword-search (func word)))))
-
-(defn related-search
-  [word]
-  (search-helper word get-related-words))
-
-(defn search
-  [word]
-  (frequencies (flatten (map keyword-search (related-words word)))))
 
 (defn add-stop-words
   [f]
