@@ -1,4 +1,4 @@
-(ns cxr.sqlwrap
+(ns cxr.db.sqlwrap
   (:use [clojure.contrib.sql :as sql])
   (:use [clj-sql.core :as clj-sql :only (insert-record)])
   (:use [clojure.contrib.string :only (join as-str)]))

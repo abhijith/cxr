@@ -1,4 +1,4 @@
-(ns cxr.environment)
+(ns cxr.db.config)
 
 (let [db-protocol "file"
       db-host     "/tmp"

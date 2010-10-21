@@ -1,6 +1,6 @@
-(ns cxr.tables
+(ns cxr.db.tables
   (:gen-class)
-  (:use [cxr.environment :only (db-config)])
+  (:use [cxr.db.config :only (db-config)])
   (:use [clojure.contrib.sql :as sql]))
   
 (defn create-stop-word
@@ -27,7 +27,7 @@
    [:id "int" "PRIMARY KEY AUTO_INCREMENT"]
    [:word "varchar(100)" "UNIQUE"]))
 
-(defn create-doc-index
+(defn create-document
   []
   (sql/create-table
    :doc_index
@@ -52,10 +52,10 @@
    [:id "bigint" "PRIMARY KEY AUTO_INCREMENT"]
    [:word "varchar(50)" "UNIQUE"]))
 
-(defn create-related
+(defn create-context
   []
   (sql/create-table
-   :related
+   :context
    [:word_id "int NOT NULL, FOREIGN KEY(word_id) REFERENCES word(id)"]
    [:thes_id "int NOT NULL, FOREIGN KEY(thes_id) REFERENCES thes(id)"]
    [:line    "int"]
@@ -68,10 +68,10 @@
      (create-stop-word)
      (create-thes)
      (create-words)
-     (create-related)
+     (create-context)
      (create-indexed-file)
      (create-indexed-word)
-     (create-doc-index))))
+     (create-document))))
 
 (defn -main []
   (create-tables))
