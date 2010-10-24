@@ -30,7 +30,7 @@
 (defn create-document
   []
   (sql/create-table
-   :doc_index
+   :document
    [:indexed_word_id "BIGINT NOT NULL, FOREIGN KEY(indexed_word_id) REFERENCES indexed_word(id) ON DELETE CASCADE"]
    [:indexed_file_id "BIGINT NOT NULL, FOREIGN KEY(indexed_file_id) REFERENCES indexed_file(id) ON DELETE CASCADE"]
    [:line "INT"]

@@ -14,9 +14,9 @@
   [word]
   (with-connection db-config    
     (qs {:distinct true
-         :cols [:related.line :thes.name]
+         :cols [:context.line :thes.name]
          :from [:word :thes]
-         :through :related
+         :through :context
          :and-where {:equal [[:word.word word]]}})))
 
 (defn line-words
@@ -24,8 +24,8 @@
   (with-connection db-config    
     (map :word (qs {:cols [:word.word]
                        :from [:word :thes]
-                       :through :related
-                       :and-where {:equal [[:related.line line]
+                       :through :context
+                       :and-where {:equal [[:context.line line]
                                            [:thes.name name]]}}))))
 
 (defn find-by-thes
@@ -35,9 +35,9 @@
        (with-connection db-config
          ;; should be a variation of line-nums => (line-nums [word thes])
          (qs {:distinct true
-              :cols [:related.line :thes.name]
+              :cols [:context.line :thes.name]
               :from [:word :thes]
-              :through :related
+              :through :context
               :and-where {:equal [[:thes.name thes]
                                   [:word.word word]]}}))))
 
@@ -47,7 +47,7 @@
 
 (defn insert
   [thes-name word num offset]
-  (insert-record :related {:thes_id (:id (model.thes/find thes-name))
+  (insert-record :context {:thes_id (:id (model.thes/find thes-name))
                            :word_id (:id (model.word/find word))
                            :line num
                            :offset offset}))

@@ -13,7 +13,7 @@
      (create-stop-word)
      (create-thes)
      (create-words)
-     (create-related)
+     (create-context)
      (create-indexed-file)
      (create-indexed-word)
      (create-doc-index))))
@@ -25,7 +25,7 @@
      (do 
        (insert-rows-thes)
        (insert-rows-word)
-       (insert-rows-related)
+       (insert-rows-context)
        (insert-rows-indexed-file)
        (insert-rows-indexed-word)
        (insert-rows-doc-index)))))
@@ -68,7 +68,7 @@
 (defn insert-rows-doc-index
   []
   (sql/insert-rows
-   :doc_index
+   :document
    [1 1]
    [2 1]
    [1 1]
@@ -83,7 +83,7 @@
 
 (defn insert-into-doc-index
   [file word num]
-  (sql-wrap/create-record :doc_index {:indexed_file_id (:id (indexed-file file))
+  (sql-wrap/create-record :document {:indexed_file_id (:id (indexed-file file))
                                       :indexed_word_id (:id (indexed-word word))}))
 
 (defn insert-rows-thes
@@ -107,10 +107,10 @@
    {:word "Whitehead"}
    {:word "Buddha"}))
 
-(defn insert-rows-related
+(defn insert-rows-context
   []
   (sql/insert-rows
-   :related
+   :context
    [1 1 1]
    [2 1 1]
    [3 1 1]

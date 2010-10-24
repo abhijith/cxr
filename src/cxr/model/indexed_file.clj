@@ -16,7 +16,7 @@
   [file]
   (map :word (qs {:cols [:indexed_word.word]
                   :from [:indexed_word :indexed_file]
-                  :through :doc_index
+                  :through :document
                   :and-where {:equal [[:indexed_file.name file]] }})))
 
 (defn create

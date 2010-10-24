@@ -54,7 +54,7 @@
 
 (defn insert
   [file word line offset]
-  (insert-record :doc_index {:indexed_file_id (:id (model.indexed-file/find file))
+  (insert-record :document {:indexed_file_id (:id (model.indexed-file/find file))
                              :indexed_word_id (:id (model.indexed-word/find word))
                              :line line
                              :offset offset}))
