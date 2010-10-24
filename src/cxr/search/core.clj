@@ -1,4 +1,4 @@
-(ns cxr.core
+(ns cxr.search.core
   (:gen-class)
   (:use [clojure.contrib.seq-utils :only (indexed)])
   (:use [clojure.contrib.io :only (read-lines)])
@@ -6,21 +6,28 @@
   (:use [cxr.db.config :only (db-config)])
   (:use [clj-sql.core :only (insert-record)])
   (:use [cxr.db.sqlwrap :only (find-record create-record qs select)])
-  (:use [cxr.tokenizer :as tokenizer])
-  (:use [cxr.mime.utils :only (pdf?)])
+  (:use [cxr.search.tokenizer :as tokenizer])
+  (:require [cxr.model.thes :as model.thes])
+  (:require [cxr.model.word :as model.word])
+  (:require [cxr.model.indexed-file :as model.indexed-file])
+  (:require [cxr.model.indexed-word :as model.indexed-word])
+  (:require [cxr.model.stop-word :as model.stop-word])
+  (:require [cxr.model.document :as model.document])
+  (:require [cxr.model.context :as model.context])
+  (:use [cxr.mime.core :only (pdf?)])
   (:use [cxr.mime.pdf :only (to-text)]))
 
 (defn known-word?
   [word]
-  (if (cxr.models.word/find word) true false))
+  (if (model.word/find word) true false))
 
 (defn indexed-word?
   [word]
-  (if (cxr.models.indexed-word/find word) true false))
+  (if (model.indexed-word/find word) true false))
 
 (defn indexed-file?
   [name]
-  (if (cxr.models.indexed-file name) true false))
+  (if (model.indexed-file/find name) true false))
 
 (defn add-stop-words
   [f]
@@ -38,7 +45,7 @@
 
 (defn stop-word?
   [word]
-  (if (cxr.models.stop-word/find word) true false))
+  (if (model.stop-word/find word) true false))
 
 (defn stop-word?
   [word]
@@ -57,7 +64,7 @@
     (do (create-record :indexed_file {:name fname})
         (doseq [[line coll] (tokenize-file fname) [offset word] coll]
           (do (create-record :indexed_word {:word word})
-              (insert-into-doc-index fname word line offset))))))
+              (model.document/insert fname word line offset))))))
 
 (defn index
   [dir]
@@ -74,4 +81,4 @@
     (do (create-record :thes {:name fname})
         (doseq [[line coll] (tokenize-file fname) [offset word] coll]
           (do (create-record :word {:word word})
-              (insert-into-related fname word line offset))))))
+              (model.context/insert fname word line offset))))))

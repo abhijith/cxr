@@ -1,6 +1,6 @@
 (ns cxr.mime.pdf
   (:import (org.apache.pdfbox.util PDFTextStripper))
-  (:import (org.apache.pdfbox.pdmodel PDDocument))
+  (:import (org.apache.pdfbox.pdmodel PDDocument)))
   
 (defn to-text [pdf-file txt-file]
   (let [stripper (PDFTextStripper.)]

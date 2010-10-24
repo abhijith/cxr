@@ -1,10 +1,12 @@
-(ns cxr.models.document
+(ns cxr.model.document
   (:use [clojure.contrib.sql :as sql])
-  (:use [cxr.db.sqlwrap :only (qs select)])
-  (:use [cxr.db.config  :only (db-config)]))
+  (:use [clj-sql.core :as clj-sql :only (insert-record)])
+  (:use [cxr.db.sqlwrap :only (qs find-record create-record)])
+  (:use [cxr.db.config  :only (db-config)])
+  (:require [cxr.model.indexed-file :as model.indexed-file])
+  (:require [cxr.model.indexed-word :as model.indexed-word]))
 
 (defn find
-  []
   [file word line offset]
   (qs {:cols [:indexed_word.word]
        :from [:indexed_word :indexed_file]
@@ -16,7 +18,7 @@
   []
   (qs {:from [:document]}))
 
-(defn line-nums
+(defn line-nos
   [word]
   (with-connection db-config    
     (qs {:distinct true
@@ -52,7 +54,7 @@
 
 (defn insert
   [file word line offset]
-  (insert-record :doc_index {:indexed_file_id (:id (indexed-file file))
-                             :indexed_word_id (:id (indexed-word word))
+  (insert-record :doc_index {:indexed_file_id (:id (model.indexed-file/find file))
+                             :indexed_word_id (:id (model.indexed-word/find word))
                              :line line
                              :offset offset}))

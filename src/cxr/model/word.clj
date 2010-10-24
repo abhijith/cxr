@@ -1,6 +1,6 @@
-(ns cxr.models.word
+(ns cxr.model.word
   (:use [clojure.contrib.sql :as sql])
-  (:use [cxr.db.sqlwrap :only (qs select)])
+  (:use [cxr.db.sqlwrap :only (qs find-record create-record)])
   (:use [cxr.db.config  :only (db-config)]))
 
 (defn find
@@ -16,5 +16,5 @@
                   :and-where {:equal [[:word.word word]] }})))
 
 (defn create
-  [name]
+  [word]
   (create-record :word {:word word}))

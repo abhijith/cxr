@@ -1,4 +1,4 @@
-(ns cxr.tokenizer
+(ns cxr.search.tokenizer
   (:use [clojure.contrib.string :only (split trim lower-case chomp chop)])
   (:use [clojure.contrib.str-utils :only (re-gsub)]))
 

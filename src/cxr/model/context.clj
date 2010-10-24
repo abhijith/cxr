@@ -1,13 +1,16 @@
-(ns cxr.models.context
+(ns cxr.model.context
   (:use [clojure.contrib.sql :as sql])
-  (:use [cxr.db.sqlwrap :only (qs select)])
-  (:use [cxr.db.config :only (db-config)]))
+  (:use [clj-sql.core :as clj-sql :only (insert-record)])
+  (:use [cxr.db.sqlwrap :only (qs find-record create-record)])
+  (:use [cxr.db.config :only (db-config)])
+  (:require [cxr.model.thes :as model.thes])
+  (:require [cxr.model.word :as model.word]))
 
 (defn find-all
   []
   (qs {:from [:document]}))
 
-(defn line-nums
+(defn line-nos
   [word]
   (with-connection db-config    
     (qs {:distinct true
@@ -44,7 +47,7 @@
 
 (defn insert
   [thes-name word num offset]
-  (insert-record :related {:thes_id (:id (thes thes-name))
-                           :word_id (:id (known-word word))
+  (insert-record :related {:thes_id (:id (model.thes/find thes-name))
+                           :word_id (:id (model.word/find word))
                            :line num
                            :offset offset}))

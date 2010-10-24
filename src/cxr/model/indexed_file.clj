@@ -1,6 +1,6 @@
-(ns cxr.models.indexed-file
+(ns cxr.model.indexed-file
   (:use [clojure.contrib.sql :as sql])
-  (:use [cxr.db.sqlwrap :only (qs select)])
+  (:use [cxr.db.sqlwrap :only (qs find-record create-record)])
   (:use [cxr.db.config  :only (db-config)]))
 
 (defn find
