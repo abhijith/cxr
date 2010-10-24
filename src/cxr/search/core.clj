@@ -73,16 +73,19 @@
 
 (defn filename-search
   [name]
-  (sql/with-connection db-config
-    (model.indexed-file/find name)))
+  (frequencies
+   (sql/with-connection db-config
+     (model.document/files name))))
 
 (defn keyword-search
   [word]
-  (sql/with-connection db-config
-    (model.indexed-file/find name)))
-  
+  (frequencies
+   (sql/with-connection db-config
+     (model.document/files word))))
+
 (defn context-search
   [word]
-  (if (known-word? word)
-    (model.context/find-all-contexts-words word)
-    (model.document/find-all-contexts-words word)))
+  (sql/with-connection db-config
+    (frequencies
+     (mapcat model.document/files
+             (if (known-word? word) (model.context/words word) (model.document/words word))))))

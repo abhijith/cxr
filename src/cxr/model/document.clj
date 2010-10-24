@@ -36,7 +36,7 @@
                     :and-where {:equal [[:document.line line]
                                         [:indexed_file.name name]]}}))))
 
-(defn find-by-file
+(defn words-by-file
   [word file]
   (map line-words
        (with-connection db-config
@@ -48,13 +48,22 @@
               :and-where {:equal [[:indexed_file.name file]
                                   [:indexed_word.word word]]}}))))
 
-(defn find-all-context-words ;; find better name
+(defn words
   [word]
   (mapcat line-words (line-nos word)))
+
+(defn files
+  [word]
+  (with-connection db-config
+    (qs {:distinct true
+         :cols [:indexed_file.name]
+         :from [:indexed_word :indexed_file]
+         :through :document
+         :and-where {:equal [[:indexed_word.word word]]}})))
 
 (defn insert
   [file word line offset]
   (insert-record :document {:indexed_file_id (:id (model.indexed-file/find file))
-                             :indexed_word_id (:id (model.indexed-word/find word))
-                             :line line
-                             :offset offset}))
+                            :indexed_word_id (:id (model.indexed-word/find word))
+                            :line line
+                            :offset offset}))

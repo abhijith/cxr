@@ -6,6 +6,14 @@
   (:require [cxr.model.thes :as model.thes])
   (:require [cxr.model.word :as model.word]))
 
+(defn find
+  [thes word line offset]
+  (qs {:cols [:thes.name]
+       :from [:word :thes]
+       :through :context
+       :and-where {:equal [[:context.line line]
+                           [:thes.name thes]]}}))
+
 (defn find-all
   []
   (qs {:from [:context]}))
@@ -28,8 +36,7 @@
                        :and-where {:equal [[:context.line line]
                                            [:thes.name name]]}}))))
 
-(defn find-by-thes
-  "get words related to a word from a particular thes"
+(defn words-by-thes
   [word thes]
   (map line-words
        (with-connection db-config
@@ -41,10 +48,19 @@
               :and-where {:equal [[:thes.name thes]
                                   [:word.word word]]}}))))
 
-(defn find-all-contexts-words ;; find better name 
+(defn words
   [word]
   (mapcat line-words (line-nos word)))
 
+(defn thesauri
+  [word]
+  (with-connection db-config
+    (qs {:distinct true
+         :cols [:context.line :thes.name]
+         :from [:word :thes]
+         :through :context
+         :and-where {:equal [[:word.word word]]}})))
+  
 (defn insert
   [thes-name word num offset]
   (insert-record :context {:thes_id (:id (model.thes/find thes-name))
