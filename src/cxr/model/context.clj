@@ -8,7 +8,7 @@
 
 (defn find-all
   []
-  (qs {:from [:document]}))
+  (qs {:from [:context]}))
 
 (defn line-nos
   [word]

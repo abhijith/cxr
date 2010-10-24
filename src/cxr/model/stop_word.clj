@@ -7,7 +7,10 @@
   [word]
   (find-record :stop_word {:word word}))
 
+(defn find-all
+  []
+  (qs {:from [:stop_word]}))
+
 (defn create
   [word]
   (create-record :stop_word {:word word}))
-

@@ -7,6 +7,10 @@
   [name]
   (find-record :thes {:name name}))
 
+(defn find-all
+  []
+  (qs {:from [:thes]}))
+
 (defn words
   "all words from an indexed file"
   [thes]

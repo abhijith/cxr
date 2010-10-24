@@ -4,8 +4,6 @@
   (:use [clojure.contrib.io :only (read-lines)])
   (:use [clojure.contrib.sql :as sql])
   (:use [cxr.db.config :only (db-config)])
-  (:use [clj-sql.core :only (insert-record)])
-  (:use [cxr.db.sqlwrap :only (find-record create-record qs select)])
   (:use [cxr.search.tokenizer :as tokenizer])
   (:require [cxr.model.thes :as model.thes])
   (:require [cxr.model.word :as model.word])
@@ -16,6 +14,20 @@
   (:require [cxr.model.context :as model.context])
   (:use [cxr.mime.core :only (pdf?)])
   (:use [cxr.mime.pdf :only (to-text)]))
+
+(defn add-stop-words
+  [f]
+  (let [name (.getName (java.io.File. f))]
+    (doseq [word (map sanitize (tokenizer/tokenize (slurp f)))]
+      (model.stop-word/create word))))
+
+(declare *stop-words*)
+
+(defn load-stop-words
+  []
+  (def *stop-words* (ref {}))
+  (doseq [rec (model.stop-word/find-all)]
+    (dosync (alter *stop-words* assoc (:word rec) true))))
 
 (defn known-word?
   [word]
@@ -29,20 +41,6 @@
   [name]
   (if (model.indexed-file/find name) true false))
 
-(defn add-stop-words
-  [f]
-  (let [name (.getName (java.io.File. f))]
-    (doseq [word (map sanitize (tokenizer/tokenize (slurp f)))]
-      (create-record :stop_word {:word word}))))
-
-(declare *stop-words*)
-
-(defn load-stop-words
-  []
-  (def *stop-words* (ref {}))
-  (doseq [rec (qs {:from [:stop_word]})]
-    (dosync (alter *stop-words* assoc (:word rec) true))))
-
 (defn stop-word?
   [word]
   (if (model.stop-word/find word) true false))
@@ -53,32 +51,38 @@
 
 (defn tokenize-file
   [f]
-  (map (fn [[line-num line]] [line-num (indexed (filter
-                                                (fn [x] (and (word? x) (not (stop-word? x))))
-                                                (map tokenizer/sanitize (tokenize line))))])
+  (map (fn [[line-num line]]
+         [line-num (indexed (filter (fn [x] (and (word? x) (not (stop-word? x)))) (map tokenizer/sanitize (tokenize line))))])
        (indexed (remove empty? (read-lines f)))))
 
 (defn index-file
   [f]
   (let [fname (.getAbsolutePath (java.io.File. f))]
-    (do (create-record :indexed_file {:name fname})
+    (do (model.indexed-file/create fname)
         (doseq [[line coll] (tokenize-file fname) [offset word] coll]
-          (do (create-record :indexed_word {:word word})
+          (do (model.indexed-word/create word)
               (model.document/insert fname word line offset))))))
-
-(defn index
-  [dir]
-  (sql/with-connection db-config
-    (load-stop-words)
-    (doseq [ [idx f] (indexed (filter (fn [x] (and (not (.isDirectory x)) (pdf? (.getAbsolutePath x)))) (file-seq dir))) ]
-      (do (println idx (.getAbsolutePath f))
-          (to-text (.getAbsolutePath f) "/tmp/reaper.txt")
-          (index-file (.getName f) :pdf true)))))
 
 (defn add-thes
   [f]
   (let [fname (.getAbsolutePath (java.io.File. f))]
-    (do (create-record :thes {:name fname})
+    (do (model.thes/create fname)
         (doseq [[line coll] (tokenize-file fname) [offset word] coll]
-          (do (create-record :word {:word word})
+          (do (model.word/create word)
               (model.context/insert fname word line offset))))))
+
+(defn filename-search
+  [name]
+  (sql/with-connection db-config
+    (model.indexed-file/find name)))
+
+(defn keyword-search
+  [word]
+  (sql/with-connection db-config
+    (model.indexed-file/find name)))
+  
+(defn context-search
+  [word]
+  (if (known-word? word)
+    (model.context/find-all-contexts-words word)
+    (model.document/find-all-contexts-words word)))
