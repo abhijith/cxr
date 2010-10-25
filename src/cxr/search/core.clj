@@ -5,15 +5,16 @@
   (:use [clojure.contrib.sql :as sql])
   (:use [cxr.db.config :only (db-config)])
   (:use [cxr.search.tokenizer :as tokenizer])
+  (:use [cxr.mime.core :only (pdf?)])
+  (:use [cxr.mime.pdf :only (to-text)])
   (:require [cxr.model.thes :as model.thes])
   (:require [cxr.model.word :as model.word])
   (:require [cxr.model.indexed-file :as model.indexed-file])
   (:require [cxr.model.indexed-word :as model.indexed-word])
   (:require [cxr.model.stop-word :as model.stop-word])
   (:require [cxr.model.document :as model.document])
-  (:require [cxr.model.context :as model.context])
-  (:use [cxr.mime.core :only (pdf?)])
-  (:use [cxr.mime.pdf :only (to-text)]))
+  (:require [cxr.model.context :as model.context]))
+
 
 (defn add-stop-words
   [f]
@@ -73,9 +74,8 @@
 
 (defn filename-search
   [name]
-  (frequencies
-   (sql/with-connection db-config
-     (model.document/files name))))
+  (sql/with-connection db-config
+    (model.indexed-file/find name)))
 
 (defn keyword-search
   [word]
