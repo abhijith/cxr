@@ -18,17 +18,19 @@
 
 (defn add-stop-words
   [f]
-  (let [name (.getName (java.io.File. f))]
-    (doseq [word (map sanitize (tokenizer/tokenize (slurp f)))]
-      (model.stop-word/create word))))
+  (with-connection db-config
+    (let [name (.getName (java.io.File. f))]
+      (doseq [word (map sanitize (tokenizer/tokenize (slurp f)))]
+        (model.stop-word/create word)))))
 
 (declare *stop-words*)
 
 (defn load-stop-words
   []
+  (with-connection db-config
   (def *stop-words* (ref {}))
   (doseq [rec (model.stop-word/find-all)]
-    (dosync (alter *stop-words* assoc (:word rec) true))))
+    (dosync (alter *stop-words* assoc (:word rec) true)))))
 
 (defn known-word?
   [word]
@@ -50,27 +52,36 @@
   [word]
   (*stop-words* word))
 
-(defn tokenize-file
+(defn filter-toks
+  [coll]
+  (filter #(and (word? %1) (not (stop-word? %1))) coll))
+
+(defn prepare-toks
+  [s]
+  (indexed (filter-toks (map tokenizer/sanitize (tokenize s)))))
+
+(defn prepare-file
   [f]
-  (map (fn [[line-num line]]
-         [line-num (indexed (filter (fn [x] (and (word? x) (not (stop-word? x)))) (map tokenizer/sanitize (tokenize line))))])
+  (map (fn [[line-num line]] [line-num (prepare-toks line)])
        (indexed (remove empty? (read-lines f)))))
 
 (defn index-file
   [f]
-  (let [fname (.getAbsolutePath (java.io.File. f))]
-    (do (model.indexed-file/create fname)
-        (doseq [[line coll] (tokenize-file fname) [offset word] coll]
-          (do (model.indexed-word/create word)
-              (model.document/insert fname word line offset))))))
+  (with-connection db-config
+    (let [fname (.getAbsolutePath (java.io.File. f))]
+      (do (model.indexed-file/create fname)
+          (doseq [[line coll] (prepare-file fname) [offset word] coll]
+            (do (model.indexed-word/create word)
+                (model.document/insert fname word line offset)))))))
 
 (defn add-thes
   [f]
-  (let [fname (.getAbsolutePath (java.io.File. f))]
-    (do (model.thes/create fname)
-        (doseq [[line coll] (tokenize-file fname) [offset word] coll]
-          (do (model.word/create word)
-              (model.context/insert fname word line offset))))))
+  (with-connection db-config
+    (let [fname (.getAbsolutePath (java.io.File. f))]
+      (do (model.thes/create fname)
+          (doseq [[line coll] (prepare-file fname) [offset word] coll]
+            (do (model.word/create word)
+                (model.context/insert fname word line offset)))))))
 
 (defn filename-search
   [name]

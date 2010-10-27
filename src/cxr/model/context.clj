@@ -31,10 +31,10 @@
   [{:keys [name line]}]
   (with-connection db-config    
     (map :word (qs {:cols [:word.word]
-                       :from [:word :thes]
-                       :through :context
-                       :and-where {:equal [[:context.line line]
-                                           [:thes.name name]]}}))))
+                    :from [:word :thes]
+                    :through :context
+                    :and-where {:equal [[:context.line line]
+                                        [:thes.name name]]}}))))
 
 (defn words-by-thes
   [word thes]
@@ -60,7 +60,7 @@
          :from [:word :thes]
          :through :context
          :and-where {:equal [[:word.word word]]}})))
-  
+
 (defn insert
   [thes-name word num offset]
   (insert-record :context {:thes_id (:id (model.thes/find thes-name))
