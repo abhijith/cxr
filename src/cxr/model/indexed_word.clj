@@ -1,7 +1,8 @@
 (ns cxr.model.indexed-word
   (:use [clojure.contrib.sql :as sql])
   (:use [cxr.db.sqlwrap :only (qs find-record create-record)])
-  (:use [cxr.db.config  :only (db-config)]))
+  (:use [cxr.db.config  :only (db-config)])
+  (:refer-clojure :exclude [find]))
 
 (defn find
   [word]

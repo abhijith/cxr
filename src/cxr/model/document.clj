@@ -4,7 +4,8 @@
   (:use [cxr.db.sqlwrap :only (qs find-record create-record)])
   (:use [cxr.db.config  :only (db-config)])
   (:require [cxr.model.indexed-file :as model.indexed-file])
-  (:require [cxr.model.indexed-word :as model.indexed-word]))
+  (:require [cxr.model.indexed-word :as model.indexed-word])
+  (:refer-clojure :exclude [find]))
 
 (defn find
   [file word line offset]
