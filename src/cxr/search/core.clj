@@ -1,19 +1,14 @@
 (ns cxr.search.core
   (:gen-class)
-  (:use [clojure.contrib.seq-utils :only (indexed)])
-  (:use [clojure.contrib.io :only (read-lines)])
-  (:use [clojure.contrib.sql :as sql])
+  (:use (clojure.contrib
+         [seq-utils :only (indexed)] [io :only (read-lines)] [sql :as sql]))
   (:use [cxr.db.config :only (db-config)])
   (:use [cxr.search.tokenizer :as tokenizer])
-  (:use [cxr.mime.core :only (pdf?)])
-  (:use [cxr.mime.pdf :only (to-text)])
-  (:require [cxr.model.thes :as model.thes])
-  (:require [cxr.model.word :as model.word])
-  (:require [cxr.model.indexed-file :as model.indexed-file])
-  (:require [cxr.model.indexed-word :as model.indexed-word])
-  (:require [cxr.model.stop-word :as model.stop-word])
-  (:require [cxr.model.document :as model.document])
-  (:require [cxr.model.context :as model.context]))
+  (:use (cxr.mime [core :only (pdf?)] [pdf :only (to-text)]))
+  (:require (cxr.model
+             [thes :as model.thes] [word :as model.word]
+             [indexed-file :as model.indexed-file] [indexed-word :as model.indexed-word]
+             [stop-word :as model.stop-word] [document :as model.document] [context :as model.context])))
 
 
 (defn add-stop-words

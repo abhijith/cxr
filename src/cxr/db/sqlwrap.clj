@@ -5,7 +5,7 @@
 
 (defn squote
   [x]
-  (if (string? x) (str "'" x "'") x))
+  (if (string? x) (format "'%s'" x)))
 
 (defn quotify [coll]
   (map (fn [x] (if (keyword? x) (as-str x) (squote x))) coll))
@@ -16,7 +16,7 @@
 
 (defn from
   [coll]
-  (str "FROM " (join ", " coll)))
+  (format "FROM %s" (join ", " coll)))
 
 (defn dist
   [bool]
@@ -25,7 +25,7 @@
 (defn and-where
   [h]
   (if (:equal h)
-    (str "WHERE " (join " AND " (map (fn [x] (join " = " x)) (map quotify (:equal h)))))))
+    (format "WHERE %s" (join " AND " (map (fn [x] (join " = " x)) (map quotify (:equal h)))))))
 
 (defn join-tables [h]
   (map (fn [table]
@@ -54,9 +54,9 @@
 
 (defn delete ;; body is redundant
   [data]
-  (join " " ["delete"
-             (from (quotify (:from data)))
-             (and-where (:and-where data))]))
+  (let [f (from (quotify (:from data)))
+        w (and-where (:and-where data)) ]
+  (join " " ["delete" f w])))
   
 (defn query-all
   [q]
