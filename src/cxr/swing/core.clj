@@ -46,6 +46,7 @@
     (do (events/add-item-listener combo-box combo/combo-handler)
         (add-action-listener search-button table/populate search-box)
         (add-action-listener abort-button table/clear-table)
-        (events/add-mouse-listener jtable))))
+        (events/add-mouse-listener jtable)
+        (table/init-table-data-watch))))
 
         
