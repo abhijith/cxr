@@ -19,7 +19,7 @@
 	 search-box (JTextField. "")
 	 search-button (JButton. "search")
 	 abort-button  (JButton. "abort")
-	 combo-box (JComboBox. (into-array [1 2 3]))
+        combo-box (JComboBox. (into-array (keys combo/search-types)))
 	 panel  (miglayout
 		  (JPanel.)
 		  (miglayout (JPanel.)) {:id :search-panel } :wrap
@@ -49,4 +49,3 @@
         (events/add-mouse-listener jtable)
         (table/init-table-data-watch))))
 
-        
