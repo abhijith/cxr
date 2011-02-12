@@ -1,11 +1,13 @@
 (ns cxr.swing.tablemodel
-  (:import (javax.swing.table AbstractTableModel)))
+  (:import (javax.swing.table AbstractTableModel))
+  (:require [cxr.swing.combo :as combo]))
 
 ;; cxr global
 (def running (atom true))
 (def column-names ["Filename"])
 (def table-data (agent []))
 
+;; search button handlers
 (defn show-results
   [a coll]
   (if (and @running (not-empty coll))
@@ -19,7 +21,7 @@
     (if-not (empty? word)
       (do
         (dosync (reset! running true))
-        (send table-data show-results [1 2 3])))))
+        (send table-data show-results (lazy-seq ((deref combo/search-fn) word)))))))
 
 (def table-model
      (proxy [AbstractTableModel] []

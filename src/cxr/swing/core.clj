@@ -14,17 +14,17 @@
 
 (defn cxr-ui
   []
-  (let [ frame  (JFrame. "cxr")
-         jtable (JTable. table/table-model)
-	 search-box (JTextField. "")
-	 search-button (JButton. "search")
-	 abort-button  (JButton. "abort")
+  (let [frame  (JFrame. "cxr")
+        jtable (JTable. table/table-model)
+        search-box (JTextField. "")
+        search-button (JButton. "search")
+        abort-button  (JButton. "abort")
         combo-box (JComboBox. (into-array (keys combo/search-types)))
-	 panel  (miglayout
-		  (JPanel.)
-		  (miglayout (JPanel.)) {:id :search-panel } :wrap
-		  (JScrollPane. jtable) {:id :result-panel :height 400 :width 760 :gapleft 5 }
-		  (miglayout (JPanel.)) {:id :status-panel } ) ]
+        panel  (miglayout
+                (JPanel.)
+                (miglayout (JPanel.)) {:id :search-panel } :wrap
+                (JScrollPane. jtable) {:id :result-panel :height 400 :width 760 :gapleft 5 }
+                (miglayout (JPanel.)) {:id :status-panel } ) ]
     (doto (:search-panel (components panel))
       (.add combo-box "w 100")
       (.add search-box "h 22, w 300, gapleft 20")
@@ -48,4 +48,3 @@
         (add-action-listener abort-button table/clear-table)
         (events/add-mouse-listener jtable)
         (table/init-table-data-watch))))
-
