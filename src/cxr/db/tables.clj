@@ -18,7 +18,7 @@
    [:id "int" "PRIMARY KEY AUTO_INCREMENT"]
    [:name "varchar(256)" "UNIQUE"]
    [:md5 "varchar(256)" "UNIQUE"]
-   [:indexed "boolean" "DEFAULT TRUE"]))
+   [:indexed "boolean" "DEFAULT FALSE"]))
 
 (defn create-indexed-word
   []

@@ -1,7 +1,8 @@
 (ns cxr.swing.menu
-  (:import (java.awt.event MouseAdapter KeyEvent ItemListener ItemEvent))
+  (:import (java.awt.event KeyEvent))
   (:use (clojure.contrib
-         [swing-utils :only (make-menubar)]))
+         [miglayout :only (miglayout components)]
+         [swing-utils :only (make-menubar add-action-listener)]))
   (:require [cxr.swing.dialog :as dialog]))
 
 (defn menubar
