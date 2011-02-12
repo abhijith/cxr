@@ -14,4 +14,4 @@
   (let [ state-changed (= (.getStateChange event) ItemEvent/SELECTED) ]
     (if state-changed
       (do (dosync (reset! search-fn (search-types (str (.getItem event)))))
-          (dialog/debug (str (.getItem event) (search-fn)))))))
+          (dialog/debug (str (.getItem event) search-fn))))))
