@@ -1,16 +1,16 @@
 (ns cxr.swing.tablemodel
   (:import (javax.swing.table AbstractTableModel))
-  (:require [cxr.swing.combo :as combo]))
+  (:require [cxr.swing.combo :as combo])
+  (:require [cxr.globals :as globals]))
 
-;; cxr global
-(def running (atom true))
+;; (def config {:cols ["Filename"] :data (agent [])}) ;;; id: should store the table config in a declarative model
 (def column-names ["Filename"])
 (def table-data (agent []))
 
 ;; search button handlers
 (defn show-results
   [a coll]
-  (if (and @running (not-empty coll))
+  (if (and (deref globals/running) (not-empty coll))
     (do (send *agent* show-results (rest coll))
         (conj @table-data [(first coll)]))
     @table-data))
@@ -20,7 +20,7 @@
   (let [word (.getText x)]
     (if-not (empty? word)
       (do
-        (dosync (reset! running true))
+        (dosync (reset! globals/running true))
         (send table-data show-results (lazy-seq ((deref combo/search-fn) word)))))))
 
 (def table-model
@@ -40,6 +40,6 @@
 ;; abort button handler
 (defn clear-table
   [event]
-  (do (dosync (reset! running false))
+  (do (dosync (reset! globals/running false))
       (send table-data (fn [x] []))
       (.fireTableRowsDeleted table-model 0 0)))

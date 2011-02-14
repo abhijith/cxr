@@ -6,7 +6,8 @@
   (:use (clojure.contrib
          [miglayout :only (miglayout components)]
          [swing-utils :only (make-menubar add-action-listener)]))
-  (:require [cxr.swing.tablemodel :as table]))
+    (:require [cxr.globals :as globals]))
+
 
 (def msg-type { :info    JOptionPane/INFORMATION_MESSAGE
 		:error   JOptionPane/ERROR_MESSAGE
@@ -33,14 +34,14 @@
 
 (defn move
   [x lst i end]
-  (if (and (deref table/running) (not (= i end)))
+  (if (and (deref globals/running) (not (= i end)))
     (do (send *agent* move (rest lst) (inc i) end)
       ;; essence can be pulled out of this function; apply f args
         (let [fname (first lst)] ;; BACKEND functionality
           (Thread/sleep 1)
           (debug (str fname "indexed"))
       (inc x)))
-    (do (reset! table/running false) end)))
+    (do (reset! globals/running false) end)))
 
 (defn init-finder-agent-watch [] ;; change the mode of the progress bar from indeterminate to determinate and set the start and end values after find-files has finished
   (add-watch finder
@@ -76,8 +77,8 @@
       (.setModal false)
       (.pack)
       (.setVisible true))
-    (dosync (reset! table/running true)) 
-    (add-action-listener (:stop (components panel)) (fn [_] (dosync (reset! table/running false))))
+    (dosync (reset! globals/running true)) 
+    (add-action-listener (:stop (components panel)) (fn [_] (dosync (reset! globals/running false))))
     (init-finder-agent-watch)
     (init-pb-agent-watch)
     (apply f args)))
