@@ -6,6 +6,7 @@
   (:use (clojure.contrib
          [miglayout :only (miglayout components)]
          [swing-utils :only (make-menubar add-action-listener)]))
+  (:require [cxr.search.core :as search])
   (:require [cxr.globals :as globals]))
 
 
@@ -93,6 +94,7 @@
       (cond
        (= JFileChooser/APPROVE_OPTION ret) (let [pb (progress-bar frame) dir (.getSelectedFile chooser)]
                                              (debug dir)
-                                             (send determinate (fn [_] (file-seq (clojure.java.io/as-file dir))))) ;; backend
+                                             (send determinate (fn [_] (search/find-files dir)
+                                                                 (search/get-files)))) ;; backend
        (= JFileChooser/CANCEL_OPTION ret) (debug "canceleshwar")
        :else "error"))))

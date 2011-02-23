@@ -76,6 +76,12 @@
       (if (and (not (.isDirectory fname)) (text? (.getAbsolutePath fname)))
         (model.indexed-file/create (.getAbsolutePath fname))))))
 
+(defn get-files
+  []
+  (map :name (filter (fn [x] (= (:indexed x) false))
+                     (with-connection db-config
+                       (model.indexed-file/find-all)))))
+  
 (defn add-thes
   [f]
   (with-connection db-config
