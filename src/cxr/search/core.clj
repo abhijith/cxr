@@ -73,7 +73,8 @@
   [dir]
   (with-connection db-config
     (doseq [fname (file-seq (clojure.java.io/as-file dir)) ]
-        (model.indexed-file/create (.getAbsolutePath fname)))))
+      (if (and (not (.isDirectory fname)) (text? (.getAbsolutePath fname)))
+        (model.indexed-file/create (.getAbsolutePath fname))))))
 
 (defn add-thes
   [f]
