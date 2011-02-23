@@ -4,7 +4,7 @@
          [seq-utils :only (indexed)] [io :only (read-lines)] [sql :as sql]))
   (:use [cxr.db.config :only (db-config)])
   (:use [cxr.search.tokenizer :as tokenizer])
-  (:use (cxr.mime [core :only (pdf?)] [pdf :only (to-text)]))
+  (:use (cxr.mime [core :only (pdf? text?)] [pdf :only (to-text)]))
   (:require (cxr.model
              [thes :as model.thes] [word :as model.word]
              [indexed-file :as model.indexed-file] [indexed-word :as model.indexed-word]
@@ -68,6 +68,12 @@
           (doseq [[line coll] (prepare-file fname) [offset word] coll]
             (do (model.indexed-word/create word)
                 (model.document/insert fname word line offset)))))))
+
+(defn find-files
+  [dir]
+  (with-connection db-config
+    (doseq [fname (file-seq (clojure.java.io/as-file dir)) ]
+        (model.indexed-file/create (.getAbsolutePath fname)))))
 
 (defn add-thes
   [f]
