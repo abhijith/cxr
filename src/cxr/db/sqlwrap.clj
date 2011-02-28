@@ -5,7 +5,7 @@
 
 (defn squote
   [x]
-  (if (string? x) (format "'%s'" x)))
+  (if (string? x) (format "'%s'" x) x))
 
 (defn quotify [coll]
   (map (fn [x] (if (keyword? x) (as-str x) (squote x))) coll))
