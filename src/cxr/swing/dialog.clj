@@ -39,8 +39,7 @@
     (do (send *agent* task (rest lst) (inc start) end)
       ;; essence can be pulled out of this function; apply f args or a macro (would work out better?)
         (let [fname (first lst)] ;; BACKEND functionality
-          (Thread/sleep 1000)
-          (debug (str fname " " "indexed"))
+          (search/index-file fname)
       (inc x)))
     (do (reset! globals/running false) end)))
 
@@ -93,7 +92,6 @@
       (.setFileSelectionMode chooser JFileChooser/DIRECTORIES_ONLY)
       (cond
        (= JFileChooser/APPROVE_OPTION ret) (let [pb (progress-bar frame) dir (.getSelectedFile chooser)]
-                                             (debug dir)
                                              (send determinate (fn [_] (search/find-files dir)
                                                                  (search/get-files)))) ;; backend
        (= JFileChooser/CANCEL_OPTION ret) (debug "canceleshwar")
