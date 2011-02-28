@@ -1,5 +1,5 @@
 (ns cxr.swing.core
-  (:import (javax.swing JButton JFrame JPanel JTextField JOptionPane JScrollPane JComboBox JTable JFileChooser JProgressBar JDialog SwingUtilities))
+  (:import (javax.swing JButton JFrame JPanel JTextField JOptionPane JScrollPane JComboBox JTable JFileChooser JProgressBar JDialog JProgressBar SwingUtilities))
   (:import (javax.swing.table AbstractTableModel))
   (:import (java.awt.event MouseAdapter KeyEvent ItemListener ItemEvent))
   (:import (java.awt Toolkit Dimension Color))
@@ -10,7 +10,8 @@
   (:require [cxr.swing.menu :as menu])
   (:require [cxr.swing.dialog :as dialog])
   (:require [cxr.swing.combo :as combo])
-  (:require [cxr.swing.events :as events]))
+  (:require [cxr.swing.events :as events])
+  (:require [cxr.swing.progress :as progress]))
 
 (defn cxr-ui
   []
@@ -23,8 +24,8 @@
         panel  (miglayout
                 (JPanel.)
                 (miglayout (JPanel.)) {:id :search-panel } :wrap
-                (JScrollPane. jtable) {:id :result-panel :height 400 :width 760 :gapleft 5 }
-                (miglayout (JPanel.)) {:id :status-panel } ) ]
+                (JScrollPane. jtable) {:id :result-panel :height 400 :width 760 :gapleft 5 :gapright 5 } :wrap
+                (JProgressBar. 0 10) {:id :progress-panel :height 20 :width 760 :gapleft 5 :gapright 5 } ) ]
     (doto (:search-panel (components panel))
       (.add combo-box "w 100")
       (.add search-box "h 22, w 300, gapleft 20")
@@ -43,8 +44,11 @@
       (.setResizable false)
       (.pack)
       (.setVisible true))
-    (do (events/add-item-listener combo-box combo/combo-handler)
-        (add-action-listener search-button table/populate search-box)
-        (add-action-listener abort-button table/clear-table)
-        (events/add-mouse-listener jtable)
-        (table/init-table-data-watch))))
+    (do
+      (progress/init-determinate-agent-watch (:progress-panel (components panel)))
+      (progress/init-pb-agent-watch (:progress-panel (components panel)))
+      (events/add-item-listener combo-box combo/combo-handler)
+      (add-action-listener search-button table/populate search-box)
+      (add-action-listener abort-button table/clear-table)
+      (events/add-mouse-listener jtable)
+      (table/init-table-data-watch))))
