@@ -19,7 +19,9 @@
     (do (send *agent* task (rest lst) (inc start) end)
         ;; essence can be pulled out of this function; apply f args or a macro (would work out better?)
         (let [fname (first lst)]
-          (search/index-file fname)
+          (if globals/running
+            (do
+              (search/index-file fname)))
           (inc x)))
     (do (reset! globals/running false) end)))
 
