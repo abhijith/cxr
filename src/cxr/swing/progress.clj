@@ -14,14 +14,18 @@
 (def determinate (agent nil))
 
 (defn task
-  [x lst start end]
+  [x pb lst start end]
   (if (and (deref globals/running) (not (= start end)))
-    (do (send *agent* task (rest lst) (inc start) end)
+    (do (send *agent* task pb (rest lst) (inc start) end)
         ;; essence can be pulled out of this function; apply f args or a macro (would work out better?)
         (let [fname (first lst)]
           (if globals/running
             (do
-              (search/index-file fname)))
+              (doto pb
+                (.setString (str "indexing" " " fname))
+                (.setStringPainted true))
+              (search/index-file fname)
+              (.setString pb (str ""))))
           (inc x)))
     (do (reset! globals/running false) end)))
 
@@ -31,11 +35,17 @@
   (add-watch determinate
              :determinate
              (fn [k r o n]
-               (if (= n :bounce) (.setIndeterminate pb true)
+               (if (= n :bounce)
+                 (do
+                   (doto pb
+                     (.setIndeterminate true)
+                     (.setString "Finding files ...")
+                     (.setStringPainted true)))
                    (let [ lst (deref *agent*) end (count lst) ]
-                     (.setIndeterminate pb false)
-                     (.setMaximum pb end) 
-                     (send pb-agent task lst 0 end))))))
+                     (doto pb
+                       (.setIndeterminate false)
+                       (.setMaximum end))
+                     (send pb-agent task pb lst 0 end))))))
 
 (defn init-pb-agent-watch
   [pb] ;; set the pb-agent's value as the progress value when the value of pb-agent changes
