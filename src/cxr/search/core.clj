@@ -94,7 +94,7 @@
 (defn filename-search
   [name]
   (sql/with-connection db-config
-    (model.indexed-file/find name)))
+    (model.indexed-file/like name)))
 
 (defn keyword-search
   [word]

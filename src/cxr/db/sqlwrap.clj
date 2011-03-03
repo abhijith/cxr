@@ -7,8 +7,13 @@
   [x]
   (if (string? x) (format "'%s'" x) x))
 
-(defn quotify [coll]
+(defn quotify
+  [coll]
   (map (fn [x] (if (keyword? x) (as-str x) (squote x))) coll))
+
+(defn likify
+  [coll]
+  (map (fn [x] (if (keyword? x) (as-str x) (squote (str "%" x "%")))) coll))
 
 (defn cols
   [coll]
@@ -24,8 +29,11 @@
 
 (defn and-where
   [h]
-  (if (:equal h)
-    (format "WHERE %s" (join " AND " (map (fn [x] (join " = " x)) (map quotify (:equal h)))))))
+  (if (or (:equal h) (:like h))
+    (format "WHERE %s"
+            (join " AND "
+                  (concat (map (fn [x] (join " = " x)) (map quotify (:equal h)))
+                          (map (fn [x] (join " like " x)) (map likify (:like h)))))))) ;; refactor
 
 (defn join-tables [h]
   (map (fn [table]
@@ -51,6 +59,17 @@
                      (from (quotify (:from h)))
                      (and-where (:and-where h))])]
     q))
+
+(defn like ;; use format and clean up this nonsense
+  [data]
+  (let [h (select-helper data)
+        q (join " " ["SELECT"
+                     (dist (:distinct h))
+                     (cols (quotify (:cols h)))
+                     (from (quotify (:from h)))
+                     (and-where (:and-where h))])]
+    q))
+
 
 (defn delete ;; body is redundant
   [data]

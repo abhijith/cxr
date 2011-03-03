@@ -23,3 +23,8 @@
 (defn create
   [name]
   (create-record :indexed_file {:name name}))
+
+(defn like
+  [name]
+  (qs {:from [:indexed_file]
+       :and-where {:like [[:indexed_file.name name]] }}))
