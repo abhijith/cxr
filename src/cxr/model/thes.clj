@@ -17,7 +17,7 @@
   [thes]
   (map :word (qs {:cols [:word.word]
                   :from [:word :thes]
-                  :through :contexts
+                  :through :context
                   :and-where {:equal [[:thes.name thes]] }})))
 
 (defn create

@@ -13,7 +13,7 @@
   [word]
   (map :name (qs {:cols [:thes.name]
                   :from [:word :thes]
-                  :through :contexts
+                  :through :context
                   :and-where {:equal [[:word.word word]] }})))
 
 (defn create

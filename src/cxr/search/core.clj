@@ -5,6 +5,8 @@
   (:use [cxr.db.config :only (db-config)])
   (:use [cxr.search.tokenizer :as tokenizer])
   (:use (cxr.mime [core :only (pdf? text?)] [pdf :only (to-text)]))
+  (:use [cxr.db.sqlwrap :only (qs find-record create-record)])
+  (:import (java.security MessageDigest Security))
   (:require (cxr.model
              [thes :as model.thes] [word :as model.word]
              [indexed-file :as model.indexed-file] [indexed-word :as model.indexed-word]
@@ -14,18 +16,17 @@
 (defn add-stop-words
   [f]
   (with-connection db-config
-    (let [name (.getName (java.io.File. f))]
-      (doseq [word (map sanitize (tokenizer/tokenize (slurp f)))]
-        (model.stop-word/create word)))))
+    (doseq [word (map sanitize (tokenizer/tokenize (slurp f)))]
+      (model.stop-word/create word))))
 
-(declare *stop-words*)
+(def *stop-words* (ref {}))
 
 (defn load-stop-words
   []
   (with-connection db-config
-  (def *stop-words* (ref {}))
-  (doseq [rec (model.stop-word/find-all)]
-    (dosync (alter *stop-words* assoc (:word rec) true)))))
+    (dosync 
+     (doseq [rec (model.stop-word/find-all)]
+       (alter *stop-words* assoc (:word rec) true)))))
 
 (defn known-word?
   [word]
@@ -65,23 +66,54 @@
   (with-connection db-config
     (let [fname (.getAbsolutePath (java.io.File. f))]
       (do (model.indexed-file/create fname)
-          (doseq [[line coll] (prepare-file fname) [offset word] coll]
+          (doseq [[line coll] (prepare-file (to-text fname)) [offset word] coll]
             (do (model.indexed-word/create word)
-                (model.document/insert fname word line offset)))))))
+                (model.document/insert fname word line offset)))
+          (assoc (model.indexed-file/find fname) :indexed true)))))
+
+;; move this into utils
+(defn md5
+  "Compute the hex MD5 sum of a string."
+  [str]
+  (let [alg (doto (MessageDigest/getInstance "MD5")
+              (.reset)
+              (.update (.getBytes str)))]
+    (.toString (new BigInteger 1 (.digest alg)) 16)))
+
+(defn file-indexed?
+  [x]
+  (with-connection db-config
+    (model.indexed-file/find (.getAbsolutePath x))))
+
+(defn file-modified?
+  [x]
+  (with-connection db-config
+    (and (model.indexed-file/find (.getAbsolutePath x))
+         (model.indexed-file/find-by-md5 (md5 (.getAbsolutePath x))))))
+
+(defn file-duplicate?
+  [x]
+  (with-connection db-config
+    (and (not (file-indexed? x)) (model.indexed-file/find-by-md5 (md5 (.getAbsolutePath x))))))
+
+;; complete this code
+(defn files-to-index
+  [dir]
+  (filter (fn [x] (and (.isFile x) (text? (.getAbsolutePath x)))) (file-seq (clojure.java.io/as-file (clojure.java.io/as-file dir)))))
 
 (defn find-files
   [dir]
   (with-connection db-config
-    (doseq [fname (file-seq (clojure.java.io/as-file dir)) ]
-      (if (and (.isFile fname) (pdf? (.getAbsolutePath fname)))
-        (model.indexed-file/create (.getAbsolutePath fname))))))
+    (doseq [fname (files-to-index dir) ]
+      (if (and (.isFile fname) (text? (.getAbsolutePath fname)))
+        (create-record :indexed_file {:name (.getAbsolutePath fname) :md5 (md5 (.getAbsolutePath fname))}))))) ;; refactor - build a multi-method style create or use keyword args
 
 (defn get-files
   []
   (map :name (filter (fn [x] (= (:indexed x) false))
                      (with-connection db-config
                        (model.indexed-file/find-all)))))
-  
+
 (defn add-thes
   [f]
   (with-connection db-config
@@ -108,3 +140,4 @@
     (frequencies
      (mapcat model.document/files
              (if (known-word? word) (model.context/words word) (model.document/words word))))))
+

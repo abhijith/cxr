@@ -8,6 +8,10 @@
   [name]
   (find-record :indexed_file {:name name}))
 
+(defn find-by-md5
+  [md5]
+  (find-record :indexed_file {:md5 md5}))
+
 (defn find-all
   []
   (qs {:from [:indexed_file]}))

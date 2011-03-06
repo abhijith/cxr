@@ -29,16 +29,25 @@
   [msg]
   (dialog (JPanel.) msg "info"))
 
-(defn ask-open
+(defn ask-open-dir
   [event frame]
   (let [chooser (JFileChooser.)]
     (.setFileSelectionMode chooser JFileChooser/DIRECTORIES_ONLY)
     (let [ ret (.showOpenDialog chooser frame)]
-      (.setFileSelectionMode chooser JFileChooser/DIRECTORIES_ONLY)
       (cond
        (= JFileChooser/APPROVE_OPTION ret)
        (do (send progress/determinate (constantly :bounce))
-           (send progress/determinate (fn [_] (search/find-files (.getSelectedFile chooser))
+           (send progress/determinate (fn [_] (search/find-files (.getAbsolutePath (.getSelectedFile chooser)))
                                         (search/get-files)))) ;; backend
+       (= JFileChooser/CANCEL_OPTION ret) (debug "canceleshwar")
+       :else "error"))))
+
+(defn ask-open-file
+  [event frame f]
+  (let [chooser (JFileChooser.)]
+    (.setFileSelectionMode chooser JFileChooser/FILES_ONLY)
+    (let [ ret (.showOpenDialog chooser frame)]
+      (cond
+       (= JFileChooser/APPROVE_OPTION ret) (send foobar (fn [_] (f (.getAbsolutePath (.getSelectedFile chooser)))))
        (= JFileChooser/CANCEL_OPTION ret) (debug "canceleshwar")
        :else "error"))))
