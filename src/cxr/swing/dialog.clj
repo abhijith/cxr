@@ -29,6 +29,8 @@
   [msg]
   (dialog (JPanel.) msg "info"))
 
+(def foobar (agent nil)) ;; dummy agent - figure it outh
+
 (defn ask-open-dir
   [event frame]
   (let [chooser (JFileChooser.)]
