@@ -14,7 +14,8 @@
                    (mouseClicked
                     [event]
                     (and (double-click? event) (SwingUtilities/isLeftMouseButton event)
-                         (dialog/debug (str (.getValueAt component (.getSelectedRow component) (.getSelectedColumn  component)))))))]
+;                         (dialog/debug (str (.getValueAt component (.getSelectedRow component) (.getSelectedColumn  component))))
+                         )))]
     (.addMouseListener component listener)
     listener))
 

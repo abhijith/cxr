@@ -10,8 +10,8 @@
 
 (defn pdf?
   [f]
-  (= "application/pdf" (mime-type f)))
+  (re-matches #".*\.pdf$" f))
 
 (defn text? 
   [f]
-  (= "text/plain" (mime-type f)))
+  (re-matches #".*\.txt$" f))

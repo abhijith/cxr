@@ -1,3 +1,5 @@
 (ns cxr.globals)
 
-(def running (atom true))
+(def search-running (atom true))
+(def index-running (atom true))
+

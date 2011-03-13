@@ -39,8 +39,9 @@
       (cond
        (= JFileChooser/APPROVE_OPTION ret)
        (do (send progress/determinate (constantly :bounce))
-           (send progress/determinate (fn [_] (search/find-files (.getAbsolutePath (.getSelectedFile chooser)))
-                                        (search/get-files)))) ;; backend
+           (send progress/determinate
+                 (fn [_] (search/find-files (.getAbsolutePath (.getSelectedFile chooser)))
+                   (search/get-files))))
        (= JFileChooser/CANCEL_OPTION ret) (debug "canceleshwar")
        :else "error"))))
 

@@ -4,42 +4,58 @@
   (:require [cxr.globals :as globals]))
 
 ;; (def config {:cols ["Filename"] :data (agent [])}) ;;; id: should store the table config in a declarative model
-(def column-names ["Filename"])
-(def table-data (agent []))
+(def search-column-names ["Results"])
+(def index-column-names ["Files"])
+(def search-table-data (agent []))
+(def index-table-data (agent []))
 
 ;; search button handlers
-(defn show-results
+(defn search-show-results
   [a coll]
-  (if (and (deref globals/running) (not-empty coll))
-    (do (send *agent* show-results (rest coll))
-        (conj @table-data [(first coll)]))
-    @table-data))
+  (if (and (deref globals/search-running) (not-empty coll))
+    (do (send *agent* search-show-results (rest coll))
+        (conj @search-table-data [(first coll)]))
+    @search-table-data))
 
-(defn populate
+(defn search-populate
   [event x]
   (let [word (.getText x)]
     (if-not (empty? word)
       (do
-        (dosync (reset! globals/running true))
-        (send table-data show-results (lazy-seq ((deref combo/search-fn) word)))))))
+        (dosync (reset! globals/search-running true))
+        (send search-table-data search-show-results (lazy-seq ((deref combo/search-fn) word)))))))
 
-(def table-model
+(def search-table-model
      (proxy [AbstractTableModel] []
-       (getColumnCount []    (count column-names))
-       (getRowCount    []    (count @table-data))
-       (getValueAt     [i j] (get-in @table-data [i j]))
-       (getColumnName  [i]   (column-names i))))
+       (getColumnCount []    (count search-column-names))
+       (getRowCount    []    (count @search-table-data))
+       (getValueAt     [i j] (get-in @search-table-data [i j]))
+       (getColumnName  [i]   (search-column-names i))))
 
-(defn init-table-data-watch
+(defn init-search-table-data-watch
   []
   (do 
-    (add-watch table-data :table-data
+    (add-watch search-table-data :search-table-data
                (fn [k r o n]
-                 (.fireTableRowsInserted table-model 0 0)))))
+                 (.fireTableRowsInserted search-table-model 0 0)))))
 
 ;; abort button handler
-(defn clear-table
+(defn search-clear-table
   [event]
-  (do (dosync (reset! globals/running false))
-      (send table-data (fn [x] []))
-      (.fireTableRowsDeleted table-model 0 0)))
+  (do (dosync (reset! globals/search-running false))
+      (send search-table-data (fn [x] [])) ;; use constantly
+      (.fireTableRowsDeleted search-table-model 0 0)))
+
+(def index-table-model
+     (proxy [AbstractTableModel] []
+       (getColumnCount []    (count index-column-names))
+       (getRowCount    []    (count @index-table-data))
+       (getValueAt     [i j] (get-in @index-table-data [i j]))
+       (getColumnName  [i]   (index-column-names i))))
+
+(defn init-index-table-data-watch
+  []
+  (do 
+    (add-watch index-table-data :index-table-data
+               (fn [k r o n]
+                 (.fireTableRowsInserted index-table-model 0 0)))))

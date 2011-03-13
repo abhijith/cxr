@@ -66,10 +66,9 @@
   (with-connection db-config
     (let [fname (.getAbsolutePath (java.io.File. f))]
       (do (model.indexed-file/create fname)
-          (doseq [[line coll] (prepare-file (to-text fname)) [offset word] coll]
+          (doseq [[line coll] (prepare-file fname) [offset word] coll]
             (do (model.indexed-word/create word)
-                (model.document/insert fname word line offset)))
-          (assoc (model.indexed-file/find fname) :indexed true)))))
+                (model.document/insert fname word line offset)))))))
 
 ;; move this into utils
 (defn md5
@@ -99,14 +98,14 @@
 ;; complete this code
 (defn files-to-index
   [dir]
-  (filter (fn [x] (and (.isFile x) (text? (.getAbsolutePath x)))) (file-seq (clojure.java.io/as-file (clojure.java.io/as-file dir)))))
+  (filter (fn [x] (and (.isFile x) (text? (.getAbsolutePath x)) x))
+          (file-seq (clojure.java.io/as-file (clojure.java.io/as-file dir)))))
 
 (defn find-files
   [dir]
   (with-connection db-config
     (doseq [fname (files-to-index dir) ]
-      (if (and (.isFile fname) (text? (.getAbsolutePath fname)))
-        (create-record :indexed_file {:name (.getAbsolutePath fname) :md5 (md5 (.getAbsolutePath fname))}))))) ;; refactor - build a multi-method style create or use keyword args
+      (create-record :indexed_file {:name (.getAbsolutePath fname) :md5 (md5 (.getAbsolutePath fname))})))) ;; refactor - build a multi-method style create or use keyword args
 
 (defn get-files
   []
