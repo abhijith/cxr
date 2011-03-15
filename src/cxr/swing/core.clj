@@ -18,6 +18,7 @@
   (let [frame  (JFrame. "cxr")
         jtable (JTable. table/search-table-model)
         itable (JTable. table/index-table-model)
+        sw-table (JTable. table/settings-table-model)
         search-box (JTextField. "")
         search-button (JButton. "search")
         abort-button  (JButton. "abort")
@@ -32,10 +33,16 @@
                  (JPanel.)
                  (JButton. "index") {:id :index-button :gapleft 5 :gapright 5 } :wrap
                  (JScrollPane. itable) {:id :result-panel :height 400 :width 760 :gapleft 5 :gapright 5 } :wrap
-                 (JProgressBar. 0 10)  {:id :progress-panel :height 20 :width 760 :gapleft 5 :gapright 5 } ) ]
+                 (JProgressBar. 0 10)  {:id :progress-panel :height 20 :width 760 :gapleft 5 :gapright 5 } )
+        settings  (miglayout
+                   (JPanel.)
+                   (JButton. "add") {:id :button :gapleft 5 :gapright 5 } :wrap
+                   (JScrollPane. sw-table) {:id :sw-panel :height 400 :width 760 :gapleft 5 :gapright 5 } :wrap
+                   (JProgressBar. 0 10)  {:id :progress-panel :height 20 :width 760 :gapleft 5 :gapright 5 } ) ]
     (doto tpane
       (.addTab "search" panel)
-      (.addTab "index" ipanel))
+      (.addTab "index" ipanel)
+      (.addTab "thesauri" settings))
     (doto (:search-panel (components panel))
       (.add combo-box "w 100")
       (.add search-box "h 22, w 300, gapleft 20")
@@ -62,6 +69,7 @@
     (do
       (progress/init-determinate-agent-watch (:progress-panel (components ipanel)) (fn [x] (cxr.search.core/index-file x)
                                                                                      (send cxr.swing.tablemodel/index-table-data conj [x])))
+      (add-action-listener (:button (components settings)) dialog/ask-open-file frame cxr.search.core/add-thes)
       (progress/init-pb-agent-watch (:progress-panel (components ipanel)))
       (events/add-item-listener combo-box combo/combo-handler)
       (add-action-listener (:index-button (components ipanel)) dialog/ask-open-dir frame)

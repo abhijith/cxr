@@ -6,8 +6,10 @@
 ;; (def config {:cols ["Filename"] :data (agent [])}) ;;; id: should store the table config in a declarative model
 (def search-column-names ["Results"])
 (def index-column-names ["Files"])
+(def settings-column-names ["Files"])
 (def search-table-data (agent []))
 (def index-table-data (agent []))
+(def settings-table-data (agent []))
 
 ;; search button handlers
 (defn search-show-results
@@ -59,3 +61,17 @@
     (add-watch index-table-data :index-table-data
                (fn [k r o n]
                  (.fireTableRowsInserted index-table-model 0 0)))))
+
+(def settings-table-model
+     (proxy [AbstractTableModel] []
+       (getColumnCount []    (count settings-column-names))
+       (getRowCount    []    (count @settings-table-data))
+       (getValueAt     [i j] (get-in @settings-table-data [i j]))
+       (getColumnName  [i]   (settings-column-names i))))
+
+(defn init-settings-table-data-watch
+  []
+  (do 
+    (add-watch settings-table-data :settings-table-data
+               (fn [k r o n]
+                 (.fireTableRowsInserted settings-table-model 0 0)))))

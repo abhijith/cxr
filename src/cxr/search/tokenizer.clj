@@ -13,4 +13,4 @@
 (defn word?
   [s]
   (if-let [word (re-matches #"^[a-zA-Z\-0-9\_]+$" s)]
-    (if (and (> (count word) 2) (< (count word) 30)) word)))
+    (if (and (> (count word) 1) (< (count word) 30)) word)))
