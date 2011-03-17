@@ -117,7 +117,7 @@
   [f]
   (with-connection db-config
     (let [fname (.getAbsolutePath (java.io.File. f))]
-      (do (model.thes/create fname)
+      (do (model.thes/create fname (md5 fname))
           (doseq [[line coll] (prepare-file fname) [offset word] coll]
             (do (model.word/create word)
                 (model.context/insert fname word line offset)))))))

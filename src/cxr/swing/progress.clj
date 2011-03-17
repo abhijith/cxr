@@ -6,7 +6,6 @@
   (:use (clojure.contrib
          [miglayout :only (miglayout components)]
          [swing-utils :only (make-menubar add-action-listener)]))
-  (:require [cxr.search.core :as search])
   (:require [cxr.globals :as globals]))
 
 
@@ -31,7 +30,7 @@
 
 ;; change the mode of the progress bar from indeterminate to determinate and set the start and end values after find-files has finished
 (defn init-determinate-agent-watch
-  [pb f] 
+  [pb f1 f2] 
   (add-watch determinate
              :determinate
              (fn [k r o n]
@@ -45,7 +44,8 @@
                      (doto pb
                        (.setIndeterminate false)
                        (.setMaximum end))
-                     (send pb-agent task pb f lst 0 end))))))
+                     (f1 (into [] lst))
+                     (send pb-agent task pb f2 lst 0 end))))))
 
 (defn init-pb-agent-watch
   [pb] ;; set the pb-agent's value as the progress value when the value of pb-agent changes

@@ -4,7 +4,7 @@
   (:use [clojure.contrib.sql :as sql]))
   
 (defn create-stop-word
-  "Create a table"
+  "words to be excluded during indexing"
   []
   (sql/create-table
    :stop_word
@@ -12,6 +12,7 @@
    [:word "varchar(32)" "UNIQUE"]))
 
 (defn create-indexed-file
+  "information about a file"
   []
   (sql/create-table
    :indexed_file
@@ -28,6 +29,7 @@
    [:word "varchar(100)" "UNIQUE"]))
 
 (defn create-document
+  "representation of document"
   []
   (sql/create-table
    :document
@@ -37,15 +39,16 @@
    [:offset "INT"]))
 
 (defn create-thes
-  "Create a table"
+  "thesauri files"
   []
   (sql/create-table
    :thes
    [:id "int" "PRIMARY KEY AUTO_INCREMENT"]
-   [:name "varchar(50)" "UNIQUE"]))
+   [:name "varchar(50)" "UNIQUE"]
+   [:md5 "varchar(256)" "UNIQUE"]))
 
 (defn create-words
-  "Create a table"
+  "words present both in thesauri and documents"
   []
   (sql/create-table
    :word
@@ -53,6 +56,7 @@
    [:word "varchar(50)" "UNIQUE"]))
 
 (defn create-context
+  "representation of a thesauri"
   []
   (sql/create-table
    :context

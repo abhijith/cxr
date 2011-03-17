@@ -6,10 +6,10 @@
 ;; (def config {:cols ["Filename"] :data (agent [])}) ;;; id: should store the table config in a declarative model
 (def search-column-names ["Results"])
 (def index-column-names ["Files"])
-(def settings-column-names ["Files"])
+(def thesauri-column-names ["Files"])
 (def search-table-data (agent []))
 (def index-table-data (agent []))
-(def settings-table-data (agent []))
+(def thesauri-table-data (agent []))
 
 ;; search button handlers
 (defn search-show-results
@@ -62,16 +62,16 @@
                (fn [k r o n]
                  (.fireTableRowsInserted index-table-model 0 0)))))
 
-(def settings-table-model
+(def thesauri-table-model
      (proxy [AbstractTableModel] []
-       (getColumnCount []    (count settings-column-names))
-       (getRowCount    []    (count @settings-table-data))
-       (getValueAt     [i j] (get-in @settings-table-data [i j]))
-       (getColumnName  [i]   (settings-column-names i))))
+       (getColumnCount []    (count thesauri-column-names))
+       (getRowCount    []    (count @thesauri-table-data))
+       (getValueAt     [i j] (get-in @thesauri-table-data [i j]))
+       (getColumnName  [i]   (thesauri-column-names i))))
 
-(defn init-settings-table-data-watch
+(defn init-thesauri-table-data-watch
   []
   (do 
-    (add-watch settings-table-data :settings-table-data
+    (add-watch thesauri-table-data :thesauri-table-data
                (fn [k r o n]
-                 (.fireTableRowsInserted settings-table-model 0 0)))))
+                 (.fireTableRowsInserted thesauri-table-model 0 0)))))

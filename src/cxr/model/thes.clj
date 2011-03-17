@@ -21,5 +21,5 @@
                   :and-where {:equal [[:thes.name thes]] }})))
 
 (defn create
-  [name]
-  (create-record :thes {:name name}))
+  [name md5]
+  (create-record :thes {:name name :md5 md5}))

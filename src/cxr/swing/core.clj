@@ -18,7 +18,7 @@
   (let [frame  (JFrame. "cxr")
         jtable (JTable. table/search-table-model)
         itable (JTable. table/index-table-model)
-        sw-table (JTable. table/settings-table-model)
+        sw-table (JTable. table/thesauri-table-model)
         search-box (JTextField. "")
         search-button (JButton. "search")
         abort-button  (JButton. "abort")
@@ -67,12 +67,17 @@
       (.pack)
       (.setVisible true))
     (do
-      (progress/init-determinate-agent-watch (:progress-panel (components ipanel)) (fn [x] (cxr.search.core/index-file x)
-                                                                                     (send cxr.swing.tablemodel/index-table-data conj [x])))
+      (progress/init-determinate-agent-watch (:progress-panel (components ipanel))
+                                             (fn [x] (send cxr.swing.tablemodel/index-table-data (fn [a e] e) (into [] (map vector x))))
+                                             (fn [x]
+                                               ;; function to update the 'indexed' column data
+                                               (cxr.search.core/index-file x)))
       (add-action-listener (:button (components settings)) dialog/ask-open-file frame cxr.search.core/add-thes)
       (progress/init-pb-agent-watch (:progress-panel (components ipanel)))
       (events/add-item-listener combo-box combo/combo-handler)
-      (add-action-listener (:index-button (components ipanel)) dialog/ask-open-dir frame)
+      (add-action-listener (:index-button (components ipanel)) dialog/ask-open-dir frame
+                           (fn [agent x] (cxr.search.core/find-files x)
+                             (cxr.search.core/get-files)))
       (add-action-listener search-button table/search-populate search-box)
       (add-action-listener abort-button table/search-clear-table)
       (events/add-mouse-listener jtable)

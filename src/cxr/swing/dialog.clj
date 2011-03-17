@@ -32,16 +32,14 @@
 (def foobar (agent nil)) ;; dummy agent - figure it outh
 
 (defn ask-open-dir
-  [event frame]
+  [event frame f & args]
   (let [chooser (JFileChooser.)]
     (.setFileSelectionMode chooser JFileChooser/DIRECTORIES_ONLY)
     (let [ ret (.showOpenDialog chooser frame)]
       (cond
        (= JFileChooser/APPROVE_OPTION ret)
        (do (send progress/determinate (constantly :bounce))
-           (send progress/determinate
-                 (fn [_] (search/find-files (.getAbsolutePath (.getSelectedFile chooser)))
-                   (search/get-files))))
+           (send progress/determinate f (.getAbsolutePath (.getSelectedFile chooser))))
        (= JFileChooser/CANCEL_OPTION ret) (debug "canceleshwar")
        :else "error"))))
 

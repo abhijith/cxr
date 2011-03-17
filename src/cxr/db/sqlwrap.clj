@@ -71,6 +71,7 @@
     q))
 
 
+;; use delete rows
 (defn delete ;; body is redundant
   [data]
   (let [f (from (quotify (:from data)))
