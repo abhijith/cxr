@@ -109,9 +109,9 @@
 
 (defn get-files
   []
-  (map :name (filter (fn [x] (= (:indexed x) false))
-                     (with-connection db-config
-                       (model.indexed-file/find-all)))))
+  (filter (fn [x] (= (:indexed x) false))
+          (with-connection db-config
+            (model.indexed-file/find-all))))
 
 (defn add-thes
   [f]

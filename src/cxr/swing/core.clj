@@ -68,10 +68,12 @@
       (.setVisible true))
     (do
       (progress/init-determinate-agent-watch (:progress-panel (components ipanel))
-                                             (fn [x] (send cxr.swing.tablemodel/index-table-data (fn [a e] e) (into [] (map vector x))))
-                                             (fn [x]
-                                               ;; function to update the 'indexed' column data
-                                               (cxr.search.core/index-file x)))
+                                             (fn [x] (send cxr.swing.tablemodel/index-table-data (fn [a e] e) (into []
+                                                                                                                  (map (fn [e] [(:name e) (:indexed e)]) x))))
+                                             (fn [x i]
+                                               (cxr.search.core/index-file x)
+                                               (send cxr.swing.tablemodel/index-table-data (fn [a]
+                                                                                             (assoc-in a [i 1] true)))))
       (add-action-listener (:button (components settings)) dialog/ask-open-file frame cxr.search.core/add-thes)
       (progress/init-pb-agent-watch (:progress-panel (components ipanel)))
       (events/add-item-listener combo-box combo/combo-handler)

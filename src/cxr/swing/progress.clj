@@ -17,13 +17,13 @@
   (if (and (deref globals/index-running) (not (= start end)))
     (do (send *agent* task pb f (rest lst) (inc start) end)
         ;; essence can be pulled out of this function; apply f args or a macro (would work out better?)
-        (let [fname (first lst)]
+        (let [fname (:name (first lst))]
           (if globals/index-running
             (do
               (doto pb
                 (.setString (str "indexing" " " fname))
                 (.setStringPainted true))
-              (f fname)
+              (f fname x)
               (.setString pb (str ""))))
           (inc x)))
     (do (reset! globals/index-running false) end)))

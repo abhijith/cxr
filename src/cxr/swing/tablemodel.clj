@@ -5,7 +5,7 @@
 
 ;; (def config {:cols ["Filename"] :data (agent [])}) ;;; id: should store the table config in a declarative model
 (def search-column-names ["Results"])
-(def index-column-names ["Files"])
+(def index-column-names ["Files" "Indexed"])
 (def thesauri-column-names ["Files"])
 (def search-table-data (agent []))
 (def index-table-data (agent []))
