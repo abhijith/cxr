@@ -11,21 +11,16 @@
 (def index-table-data (agent []))
 (def thesauri-table-data (agent []))
 
-;; search button handlers
-(defn search-show-results
-  [a coll]
-  (if (and (deref globals/search-running) (not-empty coll))
-    (do (send *agent* search-show-results (rest coll))
-        (conj @search-table-data [(first coll)]))
-    @search-table-data))
-
 (defn search-populate
   [event x]
   (let [word (.getText x)]
     (if-not (empty? word)
       (do
         (dosync (reset! globals/search-running true))
-        (send search-table-data search-show-results (lazy-seq ((deref combo/search-fn) word)))))))
+        (send cxr.swing.progress/search-done (constantly false))
+        (send search-table-data (fn [a] (let [ result (into [] ((deref combo/search-fn) word)) ]
+                                         (send cxr.swing.progress/search-done (constantly true))
+                                         result)))))))
 
 (def search-table-model
      (proxy [AbstractTableModel] []
@@ -46,6 +41,7 @@
   [event]
   (do (dosync (reset! globals/search-running false))
       (send search-table-data (fn [x] [])) ;; use constantly
+      (send cxr.swing.progress/search-done (constantly true))
       (.fireTableRowsDeleted search-table-model 0 0)))
 
 (def index-table-model

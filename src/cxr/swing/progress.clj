@@ -52,3 +52,22 @@
   (add-watch pb-agent :pb-agent
              (fn [k r o n]
                (.setValue pb n) pb)))
+
+;; search and thes progress bar
+;; this progress bar agent has two states: true or false 
+(def search-done (agent false))
+
+(defn init-search-done-watch
+  [pb]
+  (add-watch search-done :search-done
+             (fn [k r o n]
+               (.setIndeterminate pb (not n)))))
+
+
+(def thes-done (agent false))
+
+(defn init-thes-done-watch
+  [pb]
+  (add-watch thes-done :thes-done
+             (fn [k r o n]
+               (.setIndeterminate pb (not n)))))

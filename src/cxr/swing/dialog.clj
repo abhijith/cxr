@@ -29,8 +29,6 @@
   [msg]
   (dialog (JPanel.) msg "info"))
 
-(def foobar (agent nil)) ;; dummy agent - figure it outh
-
 (defn ask-open-dir
   [event frame f & args]
   (let [chooser (JFileChooser.)]
@@ -49,6 +47,6 @@
     (.setFileSelectionMode chooser JFileChooser/FILES_ONLY)
     (let [ ret (.showOpenDialog chooser frame)]
       (cond
-       (= JFileChooser/APPROVE_OPTION ret) (send foobar (fn [_] (f (.getAbsolutePath (.getSelectedFile chooser)))))
+       (= JFileChooser/APPROVE_OPTION ret) (f (.getAbsolutePath (.getSelectedFile chooser)))
        (= JFileChooser/CANCEL_OPTION ret) (debug "canceleshwar")
        :else "error"))))

@@ -74,8 +74,17 @@
                                                (cxr.search.core/index-file x)
                                                (send cxr.swing.tablemodel/index-table-data (fn [a]
                                                                                              (assoc-in a [i 1] true)))))
-      (add-action-listener (:button (components settings)) dialog/ask-open-file frame cxr.search.core/add-thes)
+      (add-action-listener (:button (components settings)) dialog/ask-open-file frame
+                           (fn [x]
+                             (send cxr.swing.progress/thes-done (constantly false))
+                             (send cxr.swing.tablemodel/thesauri-table-data (fn [a] 
+                                                                              (let [ result (cxr.search.core/add-thes x) ]
+                                                                                (send cxr.swing.progress/thes-done (constantly true))
+                                                                                ;; code to add the thesauri to the list grid
+                                                                                [[]])))))
       (progress/init-pb-agent-watch (:progress-panel (components ipanel)))
+      (progress/init-search-done-watch (:progress-panel (components panel)))
+      (progress/init-thes-done-watch (:progress-panel (components settings)))
       (events/add-item-listener combo-box combo/combo-handler)
       (add-action-listener (:index-button (components ipanel)) dialog/ask-open-dir frame
                            (fn [agent x] (cxr.search.core/find-files x)
@@ -84,4 +93,5 @@
       (add-action-listener abort-button table/search-clear-table)
       (events/add-mouse-listener jtable)
       (table/init-index-table-data-watch)
+      (table/init-thesauri-table-data-watch)
       (table/init-search-table-data-watch))))
