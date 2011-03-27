@@ -1,6 +1,6 @@
 (ns cxr.model.thes
   (:use [clojure.contrib.sql :as sql])
-  (:use [cxr.db.sqlwrap :only (qs find-record create-record)])
+  (:use [cxr.db.sqlwrap :only (qs find-record create-record update-cols)])
   (:use [cxr.db.config :only (db-config)])
   (:refer-clojure :exclude [find]))
 
@@ -23,3 +23,9 @@
 (defn create
   [name md5]
   (create-record :thes {:name name :md5 md5}))
+
+(defn update
+  [name md5]
+  (update-cols {:table :thes
+                :and-where {:equal [[:name name]]}
+                :set   [[:md5 md5]]}))
