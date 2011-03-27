@@ -31,15 +31,6 @@
   [cols]
   (format "SET %s" (join "," (map (fn [x] (join " = " x)) (map quotify cols)))))
 
-;; update table-name set column1=value, column2=value where-clause
-(defn update-cols
-  [data]
-  (updater (format "UPDATE %s %s %s" (as-str (:table data)) (setter (:set data)) (and-where (:and-where data)))))
-
-(defn updater
-  [q]
-  (do-commands q))
-
 (defn and-where
   [h]
   (if (or (:equal h) (:like h))
@@ -82,6 +73,14 @@
                      (from (quotify (:from h)))
                      (and-where (:and-where h))])]
     q))
+
+(defn updater
+  [q]
+  (do-commands q))
+
+(defn update-cols
+  [data]
+  (updater (format "UPDATE %s %s %s" (as-str (:table data)) (setter (:set data)) (and-where (:and-where data)))))
 
 
 ;; use delete rows
