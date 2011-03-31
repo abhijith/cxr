@@ -68,7 +68,8 @@
       (do (model.indexed-file/create fname)
           (doseq [[line coll] (prepare-file fname) [offset word] coll]
             (do (model.indexed-word/create word)
-                (model.document/insert fname word line offset)))))))
+                (model.document/insert fname word line offset)
+                (cxr.model.indexed-file/update fname true)))))))
 
 ;; move this into utils
 (defn md5

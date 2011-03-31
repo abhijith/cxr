@@ -1,6 +1,6 @@
 (ns cxr.model.indexed-file
   (:use [clojure.contrib.sql :as sql])
-  (:use [cxr.db.sqlwrap :only (qs find-record create-record)])
+  (:use [cxr.db.sqlwrap :only (qs find-record create-record update-cols)])
   (:use [cxr.db.config  :only (db-config)])
   (:refer-clojure :exclude [find]))
 
@@ -32,3 +32,9 @@
   [name]
   (qs {:from [:indexed_file]
        :and-where {:like [[:indexed_file.name name]] }}))
+
+(defn update
+  [name indexed]
+  (update-cols {:table :indexed_file
+                :and-where {:equal [[:name name]]}
+                :set   [[:indexed indexed]]}))
