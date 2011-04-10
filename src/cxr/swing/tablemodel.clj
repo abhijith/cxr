@@ -40,7 +40,7 @@
 (defn search-clear-table
   [event]
   (do (dosync (reset! globals/search-running false))
-      (send search-table-data (fn [x] [])) ;; use constantly
+      (send search-table-data (constantly []))
       (send cxr.swing.progress/search-done (constantly true))
       (.fireTableRowsDeleted search-table-model 0 0)))
 
