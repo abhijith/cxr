@@ -125,8 +125,9 @@
 
 (defn filename-search
   [name]
-  (sql/with-connection db-config
-    (model.indexed-file/like name)))
+  (frequencies
+   (sql/with-connection db-config
+     (model.indexed-file/like name))))
 
 (defn keyword-search
   [word]

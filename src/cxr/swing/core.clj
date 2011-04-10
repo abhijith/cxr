@@ -6,12 +6,12 @@
   (:use (clojure.contrib
          [miglayout :only (miglayout components)]
          [swing-utils :only (make-menubar add-action-listener)]))
-  (:require [cxr.swing.tablemodel :as table])
-  (:require [cxr.swing.menu :as menu])
-  (:require [cxr.swing.combo :as combo])
-  (:require [cxr.swing.dialog :as dialog])
-  (:require [cxr.swing.events :as events])
-  (:require [cxr.swing.progress :as progress]))
+  (:require [cxr.swing.tablemodel :as table] :reload)
+  (:require [cxr.swing.menu :as menu] :reload)
+  (:require [cxr.swing.combo :as combo] :reload)
+  (:require [cxr.swing.dialog :as dialog] :reload)
+  (:require [cxr.swing.events :as events] :reload)
+  (:require [cxr.swing.progress :as progress] :reload))
 
 (defn cxr-ui
   []
