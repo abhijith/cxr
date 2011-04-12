@@ -74,21 +74,23 @@
                                                (cxr.search.core/index-file x)
                                                (send cxr.swing.tablemodel/index-table-data (fn [a]
                                                                                              (assoc-in a [i 1] true)))))
-      (add-action-listener (:button (components settings)) dialog/ask-open-file frame
-                           (fn [x]
-                             (send cxr.swing.progress/thes-done (constantly false))
-                             (send cxr.swing.tablemodel/thesauri-table-data (fn [a] 
-                                                                              (let [ result (cxr.search.core/add-thes x) ]
-                                                                                (send cxr.swing.progress/thes-done (constantly true))
-                                                                                ;; code to add the thesauri to the list grid
-                                                                                [[]])))))
+      (progress/init-thes-determinate-agent-watch (:progress-panel (components settings))
+                                                  (fn [x] (send cxr.swing.tablemodel/thesauri-table-data (fn [a e] e) (into []
+                                                                                                                  (map (fn [e] [(:name e) (:indexed e)]) x))))
+                                                  (fn [x i]
+                                                    (cxr.search.core/add-thes x)
+                                                    (send cxr.swing.tablemodel/thesauri-table-data (fn [a]
+                                                                                                     (assoc-in a [i 1] true)))))
       (progress/init-pb-agent-watch (:progress-panel (components ipanel)))
+      (progress/init-thes-pb-agent-watch (:progress-panel (components settings)))
       (progress/init-search-done-watch (:progress-panel (components panel)))
-      (progress/init-thes-done-watch (:progress-panel (components settings)))
       (events/add-item-listener combo-box combo/combo-handler)
       (add-action-listener (:index-button (components ipanel)) dialog/ask-open-dir frame
                            (fn [agent x] (cxr.search.core/find-files x)
                              (cxr.search.core/get-files)))
+      (add-action-listener (:button (components settings)) dialog/thes-ask-open-dir frame
+                           (fn [agent x] (cxr.search.core/find-thesauri x)
+                             (cxr.search.core/get-thesauri)))
       (add-action-listener search-button table/search-populate search-box)
       (add-action-listener abort-button table/search-clear-table)
       (events/add-mouse-listener jtable)
