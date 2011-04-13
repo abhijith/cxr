@@ -10,7 +10,9 @@
 
 
 (def pb-agent (agent 0)) ;; update progress of finding files for indexing using the progress as the value of this agent
+(def thes-pb-agent (agent 0)) ;; update progress of finding files for indexing using the progress as the value of this agent
 (def determinate (agent nil))
+(def thes-determinate (agent nil))
 
 (defn task
   [x pb f lst start end]
@@ -27,6 +29,23 @@
               (.setString pb (str ""))))
           (inc x)))
     (do (reset! globals/index-running false) end)))
+
+(defn thes-task
+  [x pb f lst start end]
+  (if (and (deref globals/thes-index-running) (not (= start end)))
+    (do (send *agent* thes-task pb f (rest lst) (inc start) end)
+        ;; essence can be pulled out of this function; apply f args or a macro (would work out better?)
+        (let [fname (:name (first lst))]
+          (if globals/thes-index-running
+            (do
+              (doto pb
+                (.setString (str "wah" " " fname))
+                (.setStringPainted true))
+              (f fname x)
+              (.setString pb (str ""))))
+          (inc x)))
+    (do (reset! globals/thes-index-running false) end)))
+
 
 ;; change the mode of the progress bar from indeterminate to determinate and set the start and end values after find-files has finished
 (defn init-determinate-agent-watch
@@ -47,9 +66,33 @@
                      (f1 (into [] lst))
                      (send pb-agent task pb f2 lst 0 end))))))
 
+(defn init-thes-determinate-agent-watch
+  [pb f1 f2] 
+  (add-watch thes-determinate
+             :thes-determinate
+             (fn [k r o n]
+               (if (= n :bounce)
+                 (do
+                   (doto pb
+                     (.setIndeterminate true)
+                     (.setString "Finding files ...")
+                     (.setStringPainted true)))
+                   (let [ lst (deref *agent*) end (count lst) ]
+                     (doto pb
+                       (.setIndeterminate false)
+                       (.setMaximum end))
+                     (f1 (into [] lst))
+                     (send thes-pb-agent thes-task pb f2 lst 0 end))))))
+
 (defn init-pb-agent-watch
   [pb] ;; set the pb-agent's value as the progress value when the value of pb-agent changes
   (add-watch pb-agent :pb-agent
+             (fn [k r o n]
+               (.setValue pb n) pb)))
+
+(defn init-thes-pb-agent-watch
+  [pb] ;; set the pb-agent's value as the progress value when the value of pb-agent changes
+  (add-watch thes-pb-agent :thes-pb-agent
              (fn [k r o n]
                (.setValue pb n) pb)))
 
@@ -57,14 +100,14 @@
 ;; this progress bar agent has two states: true or false 
 (def search-done (agent false))
 
+(def thes-done (agent false))
+
 (defn init-search-done-watch
   [pb]
   (add-watch search-done :search-done
              (fn [k r o n]
                (.setIndeterminate pb (not n)))))
 
-
-(def thes-done (agent false))
 
 (defn init-thes-done-watch
   [pb]

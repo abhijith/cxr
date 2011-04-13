@@ -45,7 +45,8 @@
    :thes
    [:id "int" "PRIMARY KEY AUTO_INCREMENT"]
    [:name "varchar(50)" "UNIQUE"]
-   [:md5 "varchar(256)" "UNIQUE"]))
+   [:md5 "varchar(256)" "UNIQUE"]
+   [:indexed "boolean" "DEFAULT FALSE"]))
 
 (defn create-words
   "words present both in thesauri and documents"

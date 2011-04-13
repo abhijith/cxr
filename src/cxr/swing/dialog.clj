@@ -41,6 +41,18 @@
        (= JFileChooser/CANCEL_OPTION ret) (debug "canceleshwar")
        :else "error"))))
 
+(defn thes-ask-open-dir
+  [event frame f & args]
+  (let [chooser (JFileChooser.)]
+    (.setFileSelectionMode chooser JFileChooser/DIRECTORIES_ONLY)
+    (let [ ret (.showOpenDialog chooser frame)]
+      (cond
+       (= JFileChooser/APPROVE_OPTION ret)
+       (do (send progress/thes-determinate (constantly :bounce))
+           (send progress/thes-determinate f (.getAbsolutePath (.getSelectedFile chooser))))
+       (= JFileChooser/CANCEL_OPTION ret) (debug "canceleshwar")
+       :else "error"))))
+
 (defn ask-open-file
   [event frame f]
   (let [chooser (JFileChooser.)]

@@ -96,16 +96,21 @@
   (with-connection db-config
     (and (not (file-indexed? x)) (model.indexed-file/find-by-md5 (md5 (.getAbsolutePath x))))))
 
-;; complete this code
-(defn files-to-index
+(defn list-files
   [dir]
   (filter (fn [x] (and (.isFile x) (text? (.getAbsolutePath x)) x))
           (file-seq (clojure.java.io/as-file (clojure.java.io/as-file dir)))))
 
+(defn find-thesauri
+  [dir]
+  (with-connection db-config
+    (doseq [fname (list-files dir) ]
+      (create-record :thes {:name (.getAbsolutePath fname) :md5 (md5 (.getAbsolutePath fname))}))))
+
 (defn find-files
   [dir]
   (with-connection db-config
-    (doseq [fname (files-to-index dir) ]
+    (doseq [fname (list-files dir) ]
       (create-record :indexed_file {:name (.getAbsolutePath fname) :md5 (md5 (.getAbsolutePath fname))})))) ;; refactor - build a multi-method style create or use keyword args
 
 (defn get-files
@@ -114,6 +119,12 @@
           (with-connection db-config
             (model.indexed-file/find-all))))
 
+(defn get-thesauri
+  []
+  (filter (fn [x] (= (:indexed x) false))
+          (with-connection db-config
+            (model.thes/find-all))))
+
 (defn add-thes
   [f]
   (with-connection db-config
@@ -121,7 +132,8 @@
       (do (model.thes/create fname (md5 fname))
           (doseq [[line coll] (prepare-file fname) [offset word] coll]
             (do (model.word/create word)
-                (model.context/insert fname word line offset)))))))
+                (model.context/insert fname word line offset)
+                (cxr.model.thes/update fname true)))))))
 
 (defn filename-search
   [name]
