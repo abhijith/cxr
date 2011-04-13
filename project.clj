@@ -10,5 +10,5 @@
                  [oro/oro "2.0.8"]
                  [com/miglayout/miglayout "3.7.1"]]
   :dev-dependencies [[swank-clojure "1.2.1"]]
-  :namespaces [cxr.tables]
-  :main cxr.tables)
+  :aot [cxr.db.tables]
+  :main cxr.db.tables)
