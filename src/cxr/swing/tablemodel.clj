@@ -71,3 +71,25 @@
     (add-watch thesauri-table-data :thesauri-table-data
                (fn [k r o n]
                  (.fireTableRowsInserted thesauri-table-model 0 0)))))
+
+;; TODO: refactor. Build table abstraction
+(defn fill-index-table
+  [coll]
+  (send index-table-data (fn [a e] e)
+        (into []
+              (map (fn [rs] [(:name rs) (:indexed rs)]) coll))))
+
+(defn fill-thesauri-table
+  [coll]
+  (send thesauri-table-data (fn [a e] e)
+        (into []
+              (map (fn [rs] [(:name rs) (:indexed rs)]) coll))))
+
+;; update-(x,y) f & args
+(defn update-index-row
+  [row]
+  (send index-table-data (fn [a] (assoc-in a [row 1] true))))
+
+(defn update-thesauri-row
+  [row]
+  (send thesauri-table-data (fn [a] (assoc-in a [row 1] true))))

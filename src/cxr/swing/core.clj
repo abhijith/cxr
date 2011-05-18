@@ -80,7 +80,7 @@
                               [(fn []
                                  (cxr.search.core/find-files (.getAbsolutePath (.getSelectedFile chooser)))
                                  (let [coll (cxr.search.core/get-files)]
-                                   (send cxr.swing.tablemodel/index-table-data (fn [a e] e) (into [] (map (fn [rs] [(:name rs) (:indexed rs)]) coll)))
+                                   (table/fill-index-table coll)
                                    coll))]
                               [(fn [agent-val element button]
                                  (if (= :nil element)
@@ -88,7 +88,7 @@
                                    (do
                                      (.setEnabled button false)
                                      (cxr.search.core/index-file (:name element))
-                                     (send cxr.swing.tablemodel/index-table-data (fn [a] (assoc-in a [(:current agent-val) 1] true)))))) (:index-button (components ipanel))])))
+                                     (table/update-index-row (:current agent-val))))) (:index-button (components ipanel))])))
 
       (add-action-listener (:button (components settings))
                            dialog/ask-open-dir 
@@ -99,7 +99,7 @@
                               [(fn []
                                  (cxr.search.core/find-thesauri (.getAbsolutePath (.getSelectedFile chooser)))
                                  (let [coll (cxr.search.core/get-thesauri)]
-                                   (send cxr.swing.tablemodel/thesauri-table-data (fn [a e] e) (into [] (map (fn [rs] [(:name rs) (:indexed rs)]) coll)))
+                                   (table/fill-thesauri-table coll)
                                    coll))]
                               [(fn [agent-val element button]
                                  (if (= :nil element)
@@ -107,7 +107,7 @@
                                    (do
                                      (.setEnabled button false)
                                      (cxr.search.core/add-thes (:name element))
-                                     (send cxr.swing.tablemodel/thesauri-table-data (fn [a] (assoc-in a [(:current agent-val) 1] true)))))) (:button (components settings ))])))
+                                     (table/update-thesauri-row (:current agent-val))))) (:button (components settings ))])))
       
       (add-action-listener search-button table/search-populate search-box)
       (events/add-mouse-listener jtable)
