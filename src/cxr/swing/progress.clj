@@ -62,7 +62,7 @@
     (add-watch indeterminate-agent :indeterminate-agent
                (fn [k r o n]
                  (if (coll? n)
-                   (add-progress-listener pb n determinate-fn determinate-args)
+                   (apply add-progress-listener pb n determinate-fn determinate-args)
                    (doto pb
                      (.setString "wah")))))
     [pb indeterminate-agent]))
