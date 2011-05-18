@@ -25,21 +25,23 @@
   [parent msg]
   (dialog parent msg "info"))
 
+(defn error
+  [msg]
+  (dialog (JDialog.) msg "error"))
+
 (defn debug
   [msg]
   (dialog (JPanel.) msg "info"))
 
 (defn ask-open-dir
-  [event frame f & args]
+  [event parent f & args]
   (let [chooser (JFileChooser.)]
     (.setFileSelectionMode chooser JFileChooser/DIRECTORIES_ONLY)
-    (let [ ret (.showOpenDialog chooser frame)]
+    (let [ ret (.showOpenDialog chooser parent)]
       (cond
-       (= JFileChooser/APPROVE_OPTION ret)
-       (do (send progress/determinate (constantly :bounce))
-           (send progress/determinate f (.getAbsolutePath (.getSelectedFile chooser))))
-       (= JFileChooser/CANCEL_OPTION ret) (debug "canceleshwar")
-       :else "error"))))
+       (= JFileChooser/APPROVE_OPTION ret) (apply f chooser args)
+       (= JFileChooser/CANCEL_OPTION ret) nil
+       :else :error))))
 
 (defn ask-open-file
   [event frame f]
@@ -48,5 +50,5 @@
     (let [ ret (.showOpenDialog chooser frame)]
       (cond
        (= JFileChooser/APPROVE_OPTION ret) (f (.getAbsolutePath (.getSelectedFile chooser)))
-       (= JFileChooser/CANCEL_OPTION ret) (debug "canceleshwar")
+       (= JFileChooser/CANCEL_OPTION ret) :cancelled
        :else "error"))))
