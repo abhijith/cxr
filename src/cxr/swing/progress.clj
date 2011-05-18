@@ -32,17 +32,16 @@
                    (.setValue (:current n))
                    (.setString (str (:element n))))))
     (letfn [(task-fn
-             [agent-val lst task-args]
+             [agent-val lst & task-args]
              (if (and (:running agent-val)
                       (not (empty? lst)))
                (do
                  (let [{:keys [current element running] :or {current 1 running true element (first (rest lst))}}
                        (apply f agent-val (first lst) task-args)]
-                   (send *agent* task-fn (rest lst) task-args)
+                   (Thread/sleep 1000)
+                   (apply send *agent* task-fn (rest lst) task-args)
                    (assoc (merge-with + agent-val {:current current}) :element element :running running)))
-               (if (:post agent-val)
-                 (apply f agent-val :nil task-args)
-                 agent-val)))]
+               (if (:post agent-val) (apply f agent-val :nil task-args) agent-val)))]
       (apply send task-agent task-fn coll args))
     [pb task-agent]))
 
