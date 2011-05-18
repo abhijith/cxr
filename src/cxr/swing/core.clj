@@ -1,4 +1,5 @@
 (ns cxr.swing.core
+  (:gen-class)
   (:import (javax.swing JButton JFrame JPanel JTextField JOptionPane JScrollPane JComboBox JTable JFileChooser JProgressBar JDialog JProgressBar JTabbedPane SwingUtilities))
   (:import (javax.swing.table AbstractTableModel))
   (:import (java.awt.event MouseAdapter KeyEvent ItemListener ItemEvent))
@@ -7,6 +8,7 @@
          [miglayout :only (miglayout components)]
          [swing-utils :only (make-menubar add-action-listener)]))
   (:require [cxr.swing.tablemodel :as table] :reload)
+  (:require [cxr.db.tables :as db] :reload)
   (:require [cxr.swing.menu :as menu] :reload)
   (:require [cxr.swing.combo :as combo] :reload)
   (:require [cxr.swing.dialog :as dialog] :reload)
@@ -21,7 +23,6 @@
         sw-table (JTable. table/thesauri-table-model)
         search-box (JTextField. "")
         search-button (JButton. "search")
-        abort-button  (JButton. "abort")
         combo-box (JComboBox. (into-array (keys combo/search-types)))
         tpane (JTabbedPane.)
         panel  (miglayout
@@ -46,8 +47,7 @@
     (doto (:search-panel (components panel))
       (.add combo-box "w 100")
       (.add search-box "h 22, w 300, gapleft 20")
-      (.add search-button "")
-      (.add abort-button ""))
+      (.add search-button ""))
     (doto jtable
       (.setShowGrid false)
       (.setShowHorizontalLines true)
@@ -67,31 +67,57 @@
       (.pack)
       (.setVisible true))
     (do
-      (progress/init-determinate-agent-watch (:progress-panel (components ipanel))
-                                             (fn [x] (send cxr.swing.tablemodel/index-table-data (fn [a e] e) (into []
-                                                                                                                  (map (fn [e] [(:name e) (:indexed e)]) x))))
-                                             (fn [x i]
-                                               (cxr.search.core/index-file x)
-                                               (send cxr.swing.tablemodel/index-table-data (fn [a]
-                                                                                             (assoc-in a [i 1] true)))))
-      (add-action-listener (:button (components settings)) dialog/ask-open-file frame
-                           (fn [x]
-                             (send cxr.swing.progress/thes-done (constantly false))
-                             (send cxr.swing.tablemodel/thesauri-table-data (fn [a] 
-                                                                              (let [ result (cxr.search.core/add-thes x) ]
-                                                                                (send cxr.swing.progress/thes-done (constantly true))
-                                                                                ;; code to add the thesauri to the list grid
-                                                                                [[]])))))
-      (progress/init-pb-agent-watch (:progress-panel (components ipanel)))
+      (add-action-listener search-box table/search-populate search-box)
       (progress/init-search-done-watch (:progress-panel (components panel)))
-      (progress/init-thes-done-watch (:progress-panel (components settings)))
       (events/add-item-listener combo-box combo/combo-handler)
-      (add-action-listener (:index-button (components ipanel)) dialog/ask-open-dir frame
-                           (fn [agent x] (cxr.search.core/find-files x)
-                             (cxr.search.core/get-files)))
+
+      (add-action-listener (:index-button (components ipanel))
+                           dialog/ask-open-dir 
+                           frame 
+                           (fn [chooser]
+                             (progress/indeterminate-progress-bar
+                              (:progress-panel (components ipanel))
+                              [(fn []
+                                 (cxr.search.core/find-files (.getAbsolutePath (.getSelectedFile chooser)))
+                                 (let [coll (cxr.search.core/get-files)]
+                                   (send cxr.swing.tablemodel/index-table-data (fn [a e] e) (into [] (map (fn [rs] [(:name rs) (:indexed rs)]) coll)))
+                                   coll))]
+                              [(fn [agent-val element button]
+                                 (if (= :nil element)
+                                   (.setEnabled button true)
+                                   (do
+                                     (.setEnabled button false)
+                                     (cxr.search.core/index-file (:name element))
+                                     (send cxr.swing.tablemodel/index-table-data (fn [a] (assoc-in a [(:current agent-val) 1] true)))))) (:index-button (components ipanel))])))
+
+      (add-action-listener (:button (components settings))
+                           dialog/ask-open-dir 
+                           frame
+                           (fn [chooser]
+                             (progress/indeterminate-progress-bar
+                              (:progress-panel (components settings))
+                              [(fn []
+                                 (cxr.search.core/find-thesauri (.getAbsolutePath (.getSelectedFile chooser)))
+                                 (let [coll (cxr.search.core/get-thesauri)]
+                                   (send cxr.swing.tablemodel/thesauri-table-data (fn [a e] e) (into [] (map (fn [rs] [(:name rs) (:indexed rs)]) coll)))
+                                   coll))]
+                              [(fn [agent-val element button]
+                                 (if (= :nil element)
+                                   (.setEnabled button true)
+                                   (do
+                                     (.setEnabled button false)
+                                     (cxr.search.core/add-thes (:name element))
+                                     (send cxr.swing.tablemodel/thesauri-table-data (fn [a] (assoc-in a [(:current agent-val) 1] true)))))) (:button (components settings ))])))
+      
       (add-action-listener search-button table/search-populate search-box)
-      (add-action-listener abort-button table/search-clear-table)
       (events/add-mouse-listener jtable)
       (table/init-index-table-data-watch)
       (table/init-thesauri-table-data-watch)
       (table/init-search-table-data-watch))))
+
+(defn -main
+  []
+  (try
+    (db/create-tables)
+    (catch Exception e (prn "in catch"))
+    (finally (cxr-ui))))

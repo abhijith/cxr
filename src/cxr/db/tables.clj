@@ -1,5 +1,6 @@
 (ns cxr.db.tables
   (:gen-class)
+  (:import (java.sql BatchUpdateException))
   (:use [cxr.db.config :only (db-config)])
   (:use [clojure.contrib.sql :as sql]))
   
@@ -44,8 +45,9 @@
   (sql/create-table
    :thes
    [:id "int" "PRIMARY KEY AUTO_INCREMENT"]
-   [:name "varchar(50)" "UNIQUE"]
-   [:md5 "varchar(256)" "UNIQUE"]))
+   [:name "varchar(256)" "UNIQUE"]
+   [:md5 "varchar(256)" "UNIQUE"]
+   [:indexed "boolean" "DEFAULT FALSE"]))
 
 (defn create-words
   "words present both in thesauri and documents"
@@ -78,4 +80,6 @@
      (create-document))))
 
 (defn -main []
-  (create-tables))
+  (try
+    (create-tables)
+    (catch java.lang.Exception e )))

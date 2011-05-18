@@ -8,53 +8,7 @@
          [swing-utils :only (make-menubar add-action-listener)]))
   (:require [cxr.globals :as globals]))
 
-
-(def pb-agent (agent 0)) ;; update progress of finding files for indexing using the progress as the value of this agent
-(def determinate (agent nil))
-
-(defn task
-  [x pb f lst start end]
-  (if (and (deref globals/index-running) (not (= start end)))
-    (do (send *agent* task pb f (rest lst) (inc start) end)
-        ;; essence can be pulled out of this function; apply f args or a macro (would work out better?)
-        (let [fname (:name (first lst))]
-          (if globals/index-running
-            (do
-              (doto pb
-                (.setString (str "indexing" " " fname))
-                (.setStringPainted true))
-              (f fname x)
-              (.setString pb (str ""))))
-          (inc x)))
-    (do (reset! globals/index-running false) end)))
-
 ;; change the mode of the progress bar from indeterminate to determinate and set the start and end values after find-files has finished
-(defn init-determinate-agent-watch
-  [pb f1 f2] 
-  (add-watch determinate
-             :determinate
-             (fn [k r o n]
-               (if (= n :bounce)
-                 (do
-                   (doto pb
-                     (.setIndeterminate true)
-                     (.setString "Finding files ...")
-                     (.setStringPainted true)))
-                   (let [ lst (deref *agent*) end (count lst) ]
-                     (doto pb
-                       (.setIndeterminate false)
-                       (.setMaximum end))
-                     (f1 (into [] lst))
-                     (send pb-agent task pb f2 lst 0 end))))))
-
-(defn init-pb-agent-watch
-  [pb] ;; set the pb-agent's value as the progress value when the value of pb-agent changes
-  (add-watch pb-agent :pb-agent
-             (fn [k r o n]
-               (.setValue pb n) pb)))
-
-;; search and thes progress bar
-;; this progress bar agent has two states: true or false 
 (def search-done (agent false))
 
 (defn init-search-done-watch
@@ -63,11 +17,53 @@
              (fn [k r o n]
                (.setIndeterminate pb (not n)))))
 
+(defn add-progress-listener
+  [pb coll f & args]
+  (let [cnt (count coll)
+        task-agent (agent {:start 0 :end cnt :current 0 :element (first coll) :running true :post true})]
+    (doto pb
+      (.setMaximum cnt)
+      (.setIndeterminate false)
+      (.setString (str (first coll)))
+      (.setStringPainted true))
+    (add-watch task-agent :task-agent
+               (fn [k r o n]
+                 (doto pb
+                   (.setValue (:current n))
+                   (.setString (str (:element n))))))
+    (letfn [(task-fn
+             [agent-val lst task-args]
+             (if (and (:running agent-val)
+                      (not (empty? lst)))
+               (do
+                 (let [{:keys [current element running] :or {current 1 running true element (first (rest lst))}}
+                       (apply f agent-val (first lst) task-args)]
+                   (send *agent* task-fn (rest lst) task-args)
+                   (assoc (merge-with + agent-val {:current current}) :element element :running running)))
+               (if (:post agent-val)
+                 (apply f agent-val :nil task-args)
+                 agent-val)))]
+      (apply send task-agent task-fn coll args))
+    [pb task-agent]))
 
-(def thes-done (agent false))
+(defn progress-bar
+  [coll f & args]
+  (let [cnt (count coll)
+        pb (JProgressBar.)]
+    (apply add-progress-listener pb coll f args)))
 
-(defn init-thes-done-watch
-  [pb]
-  (add-watch thes-done :thes-done
-             (fn [k r o n]
-               (.setIndeterminate pb (not n)))))
+(defn indeterminate-progress-bar
+  [pb [indeterminate-fn & indeterminate-args] [determinate-fn & determinate-args]]
+  (let [indeterminate-agent (agent nil)]
+    (doto pb
+      (.setIndeterminate true)
+      (.setString "wah")
+      (.setStringPainted true))
+    (send indeterminate-agent (fn [a args] (apply indeterminate-fn args)) indeterminate-args)
+    (add-watch indeterminate-agent :indeterminate-agent
+               (fn [k r o n]
+                 (if (coll? n)
+                   (add-progress-listener pb n determinate-fn determinate-args)
+                   (doto pb
+                     (.setString "wah")))))
+    [pb indeterminate-agent]))

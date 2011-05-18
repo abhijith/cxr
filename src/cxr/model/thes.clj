@@ -25,7 +25,7 @@
   (create-record :thes {:name name :md5 md5}))
 
 (defn update
-  [name md5]
+  [name indexed]
   (update-cols {:table :thes
                 :and-where {:equal [[:name name]]}
-                :set   [[:md5 md5]]}))
+                :set   [[:indexed indexed]]}))
