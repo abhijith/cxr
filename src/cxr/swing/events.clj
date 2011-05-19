@@ -3,7 +3,7 @@
   (:import (java.awt.event MouseAdapter ItemListener))
   (:require [cxr.swing.dialog :as dialog])
   (:use (clojure.contrib
-         [swing-utils :only (make-menubar add-action-listener)])))
+         [swing-utils :only (make-menubar add-action-listener)] [shell-out :only (sh) :as sh])))
 
 (defn double-click? [event]
   (= 2 (.getClickCount event)))
