@@ -1,7 +1,7 @@
 (ns cxr.search.core
   (:gen-class)
-  (:use (clojure.contrib
-         [seq-utils :only (indexed)] [io :only (read-lines)] [sql :as sql]))
+  (:require (clojure.contrib
+             [seq-utils :only (indexed) :as seq-utils ] [io :only (read-lines) :as io] [sql :as sql] [string :only (replace-re) :as string]))
   (:use [cxr.db.config :only (db-config)])
   (:use [cxr.search.tokenizer :as tokenizer])
   (:use (cxr.mime [core :only (pdf? text?)] [pdf :only (to-text)]))
@@ -15,7 +15,7 @@
 
 (defn add-stop-words
   [f]
-  (with-connection db-config
+  (sql/with-connection db-config
     (doseq [word (map sanitize (tokenizer/tokenize (slurp f)))]
       (model.stop-word/create word))))
 
@@ -23,7 +23,7 @@
 
 (defn load-stop-words
   []
-  (with-connection db-config
+  (sql/with-connection db-config
     (dosync 
      (doseq [rec (model.stop-word/find-all)]
        (alter *stop-words* assoc (:word rec) true)))))
@@ -54,18 +54,19 @@
 
 (defn prepare-toks
   [s]
-  (indexed (filter-toks (map tokenizer/sanitize (tokenize s)))))
+  (seq-utils/indexed (filter-toks (map tokenizer/sanitize (tokenize s)))))
 
 (defn prepare-file
   [f]
   (map (fn [[line-num line]] [line-num (prepare-toks line)])
-       (indexed (remove empty? (read-lines f)))))
+       (seq-utils/indexed (remove empty? (io/read-lines f)))))
 
 (defn index-file
   [f]
-  (with-connection db-config
+  (sql/with-connection db-config
     (let [fname (.getAbsolutePath (java.io.File. f))]
       (do (model.indexed-file/create fname)
+
           (doseq [[line coll] (prepare-file fname) [offset word] coll]
             (do (model.indexed-word/create word)
                 (model.document/insert fname word line offset)
@@ -82,18 +83,18 @@
 
 (defn file-indexed?
   [x]
-  (with-connection db-config
+  (sql/with-connection db-config
     (model.indexed-file/find (.getAbsolutePath x))))
 
 (defn file-modified?
   [x]
-  (with-connection db-config
+  (sql/with-connection db-config
     (and (model.indexed-file/find (.getAbsolutePath x))
          (model.indexed-file/find-by-md5 (md5 (.getAbsolutePath x))))))
 
 (defn file-duplicate?
   [x]
-  (with-connection db-config
+  (sql/with-connection db-config
     (and (not (file-indexed? x)) (model.indexed-file/find-by-md5 (md5 (.getAbsolutePath x))))))
 
 (defn list-files
@@ -103,31 +104,31 @@
 
 (defn find-thesauri
   [dir]
-  (with-connection db-config
+  (sql/with-connection db-config
     (doseq [fname (list-files dir) ]
       (create-record :thes {:name (.getAbsolutePath fname) :md5 (md5 (.getAbsolutePath fname))}))))
 
 (defn find-files
   [dir]
-  (with-connection db-config
+  (sql/with-connection db-config
     (doseq [fname (list-files dir) ]
       (create-record :indexed_file {:name (.getAbsolutePath fname) :md5 (md5 (.getAbsolutePath fname))})))) ;; refactor - build a multi-method style create or use keyword args
 
 (defn get-files
   []
   (filter (fn [x] (= (:indexed x) false))
-          (with-connection db-config
+          (sql/with-connection db-config
             (model.indexed-file/find-all))))
 
 (defn get-thesauri
   []
   (filter (fn [x] (= (:indexed x) false))
-          (with-connection db-config
+          (sql/with-connection db-config
             (model.thes/find-all))))
 
 (defn add-thes
   [f]
-  (with-connection db-config
+  (sql/with-connection db-config
     (let [fname (.getAbsolutePath (java.io.File. f))]
       (do (model.thes/create fname (md5 fname))
           (doseq [[line coll] (prepare-file fname) [offset word] coll]
