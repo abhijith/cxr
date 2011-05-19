@@ -4,7 +4,7 @@
              [seq-utils :only (indexed) :as seq-utils ] [io :only (read-lines) :as io] [sql :as sql] [string :only (replace-re) :as string]))
   (:use [cxr.db.config :only (db-config)])
   (:use [cxr.search.tokenizer :as tokenizer])
-  (:use (cxr.mime [core :only (pdf? text?)] [pdf :only (to-text)]))
+  (:use (cxr.mime [core :only (pdf? text?)] [pdf :only (to-text convert)]))
   (:use [cxr.db.sqlwrap :only (qs find-record create-record)])
   (:import (java.security MessageDigest Security))
   (:require (cxr.model
@@ -64,13 +64,13 @@
 (defn index-file
   [f]
   (sql/with-connection db-config
-    (let [fname (.getAbsolutePath (java.io.File. f))]
-      (do (model.indexed-file/create fname)
-
-          (doseq [[line coll] (prepare-file fname) [offset word] coll]
-            (do (model.indexed-word/create word)
-                (model.document/insert fname word line offset)
-                (cxr.model.indexed-file/update fname true)))))))
+    (let [fname (.getAbsolutePath (java.io.File. f))
+          out (if (pdf? fname) (convert fname) fname)]
+      (model.indexed-file/create fname)
+      (doseq [[line coll] (prepare-file out) [offset word] coll]
+        (do (model.indexed-word/create word)
+            (model.document/insert fname word line offset)
+            (cxr.model.indexed-file/update fname true))))))
 
 ;; move this into utils
 (defn md5
@@ -99,7 +99,8 @@
 
 (defn list-files
   [dir]
-  (filter (fn [x] (and (.isFile x) (text? (.getAbsolutePath x)) x))
+  (filter (fn [x] (and (.isFile x)
+                      (or (text? (.getAbsolutePath x)) (pdf? (.getAbsolutePath x))) x))
           (file-seq (clojure.java.io/as-file (clojure.java.io/as-file dir)))))
 
 (defn find-thesauri
