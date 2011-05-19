@@ -1,4 +1,9 @@
-This project is still under development
+# cxr 
 
-© 2010 Abhijith.G. All rights reserved.
+Simple pdf indexer/search tool written in Clojure. This project is still under developement.
 
+## License
+
+Copyright (C) 2010 Abhijith.G
+
+Distributed under the Eclipse Public License, the same as Clojure.
