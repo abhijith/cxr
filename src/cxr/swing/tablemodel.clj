@@ -6,7 +6,7 @@
 ;; (def config {:cols ["Filename"] :data (agent [])}) ;;; id: should store the table config in a declarative model
 (def search-column-names ["Results"])
 (def index-column-names ["Files" "Indexed"])
-(def thesauri-column-names ["Files"])
+(def thesauri-column-names ["Files" "Indexed"])
 (def search-table-data (agent []))
 (def index-table-data (agent []))
 (def thesauri-table-data (agent []))
@@ -18,7 +18,7 @@
       (do
         (dosync (reset! globals/search-running true))
         (send cxr.swing.progress/search-done (constantly false))
-        (send search-table-data (fn [a] (let [ result (into [] ((deref combo/search-fn) word)) ]
+        (send search-table-data (fn [a] (let [ result (into [] (map (fn [[k v]] [(:name k)]) ((deref combo/search-fn) word))) ]
                                          (send cxr.swing.progress/search-done (constantly true))
                                          result)))))))
 
