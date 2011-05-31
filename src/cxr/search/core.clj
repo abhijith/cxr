@@ -154,5 +154,5 @@
   (sql/with-connection db-config
     (frequencies
      (mapcat model.document/files
-             (if (known-word? word) (model.context/words word) (model.document/words word))))))
+             (if (known-word? word) (model.context/words word))))))
 
