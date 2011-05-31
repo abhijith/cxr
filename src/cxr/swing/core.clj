@@ -88,7 +88,8 @@
                                    (do
                                      (.setEnabled button false)
                                      (cxr.search.core/index-file (:name element))
-                                     (table/update-index-row (:current agent-val))))) (:index-button (components ipanel))])))
+                                     (table/update-index-row (:current agent-val))
+                                     {:element (get-in agent-val [:element :name])}))) (:index-button (components ipanel))])))
 
       (add-action-listener (:button (components settings))
                            dialog/ask-open-dir 
@@ -107,7 +108,8 @@
                                    (do
                                      (.setEnabled button false)
                                      (cxr.search.core/add-thes (:name element))
-                                     (table/update-thesauri-row (:current agent-val))))) (:button (components settings ))])))
+                                     (table/update-thesauri-row (:current agent-val))
+                                     {:element  (get-in agent-val [:element :name])}))) (:button (components settings ))])))
       
       (add-action-listener search-button table/search-populate search-box)
       (events/add-mouse-listener jtable)
@@ -118,6 +120,6 @@
 (defn -main
   []
   (try
-    (db/create-tables)
+    (db/-main)
     (catch Exception e (prn "in catch"))
     (finally (cxr-ui))))
