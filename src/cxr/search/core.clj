@@ -155,4 +155,3 @@
     (frequencies
      (mapcat model.document/files
              (if (known-word? word) (model.context/words word))))))
-
