@@ -123,4 +123,6 @@
     (db/-main)
     (cxr.search.core/add-stop-words "resources/stopwords")
     (catch Exception e (prn "in catch" e))
-    (finally (cxr-ui))))
+    (finally
+     (cxr.search.core/load-stop-words)
+     (cxr-ui))))
