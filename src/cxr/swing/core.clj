@@ -120,9 +120,9 @@
 (defn -main
   []
   (try
-    (db/-main)
-    (cxr.search.core/add-stop-words "resources/stopwords")
+    (if-not (.exists (clojure.contrib.io/file "/tmp/cxr.h2.db"))
+      (db/create-tables))
+    (do (cxr.search.core/load-stop-words)
+        (cxr.search.core/add-stop-words "resources/stopwords"))
     (catch Exception e (prn "in catch" e))
-    (finally
-     (cxr.search.core/load-stop-words)
-     (cxr-ui))))
+    (finally (cxr-ui))))
