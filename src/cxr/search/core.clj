@@ -137,21 +137,24 @@
                 (model.context/insert fname word line offset)
                 (cxr.model.thes/update fname true)))))))
 
+(defn- sort-result
+  [res]
+  (sort-by (fn [[rec wt]] wt) > res))
+
+(defn- search [f arg]
+  (sort-result 
+   (frequencies
+    (sql/with-connection db-config (f arg)))))
+
+
 (defn filename-search
   [name]
-  (frequencies
-   (sql/with-connection db-config
-     (model.indexed-file/like name))))
+  (search model.indexed-file/like name))
 
 (defn keyword-search
   [word]
-  (frequencies
-   (sql/with-connection db-config
-     (model.document/files word))))
+  (search model.document/files word))
 
 (defn context-search
   [word]
-  (sql/with-connection db-config
-    (frequencies
-     (mapcat model.document/files
-             (if (known-word? word) (model.context/words word))))))
+  (search (fn [w] (mapcat model.document/files (model.context/words w))) word))
