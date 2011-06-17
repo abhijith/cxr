@@ -8,7 +8,8 @@
                   :subprotocol "h2"
                   :subname (str db-protocol "://" db-host "/" db-name)
                   :user     "cxr"
-                  :password "cxr"}))
+                  :password "cxr"})
+  (def db-path (str db-host "/" db-name ".h2.db")))
 
 (let [db-protocol "file"
       db-host     "/tmp"

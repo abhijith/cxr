@@ -8,6 +8,7 @@
          [miglayout :only (miglayout components)]
          [swing-utils :only (make-menubar add-action-listener)]))
   (:require [cxr.swing.tablemodel :as table] :reload)
+  (:require [cxr.db.config :as config] :reload)
   (:require [cxr.db.tables :as db] :reload)
   (:require [cxr.swing.menu :as menu] :reload)
   (:require [cxr.swing.combo :as combo] :reload)
@@ -120,7 +121,7 @@
 (defn -main
   []
   (try
-    (if-not (.exists (clojure.contrib.io/file "/tmp/cxr.h2.db"))
+    (if-not (.exists (clojure.contrib.io/file config/db-path))
       (db/create-tables))
     (do (cxr.search.core/load-stop-words)
         (cxr.search.core/add-stop-words "resources/stopwords"))
