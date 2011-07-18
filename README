@@ -1,19 +1,9 @@
 # cxr 
 
-Simple pdf indexer/search tool written in Clojure.
-
-## Building
-
-1. lein deps
-2. lein compile
-3. lein uberjar
-
-## Running
-
-java -jar cxr-0.1-standalone.jar
+Simple pdf indexer/search tool written in Clojure. This project is still under developement.
 
 ## License
 
 Copyright (C) 2010 Abhijith.G
 
-Distributed under the Eclipse Public License, same as Clojure.
+Distributed under the Eclipse Public License, the same as Clojure.
