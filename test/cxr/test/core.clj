@@ -1,121 +1,23 @@
 (ns cxr.test.core
-  (:use [cxr.core] :reload)
-  (:use [clojure.test]))
+  (:use [clojure.test])
+  (:require [clojure.contrib.sql :as sql])
+  (:use [cxr.db.tables :as tables])
+  (:use [cxr.db.config :only (db-config)])
+  (:require [cxr.search.core :as cxr] :reload))
 
-(deftest replace-me
-  (is false "No tests have been written."))
+(defn setup-db
+  [f]
+  (tables/create-tables)
+  (f))
 
-;; assert the following and and more tests
-(defn create-tables
+(defn add-thesauri
   []
-  (sql/with-connection db
-    (sql/transaction
-     (create-stop-word)
-     (create-thes)
-     (create-words)
-     (create-context)
-     (create-indexed-file)
-     (create-indexed-word)
-     (create-doc-index))))
+  (cxr/add-thes "resources/testdata/thes/tech")
+  (cxr/add-thes "resources/testdata/thes/philo"))
 
-(defn init-tables
+(use-fixtures :each setup-db)
+
+(deftest thesauri
   []
-  (sql/with-connection db
-    (sql/transaction
-     (do 
-       (insert-rows-thes)
-       (insert-rows-word)
-       (insert-rows-context)
-       (insert-rows-indexed-file)
-       (insert-rows-indexed-word)
-       (insert-rows-doc-index)))))
-
-(defn insert-rows-word
-  "Insert complete rows"
-  []
-  (sql/insert-records
-   :word
-   {:word "lisp"}
-   {:word "clojure"}
-   {:word "lambda"}
-   {:word "calculus"}
-   {:word "Nietzsche"}
-   {:word "Whitehead"}
-   {:word "Buddha"}))
-
-(defn insert-rows-indexed-file
-  "Insert complete rows"
-  []
-  (sql/insert-records
-   :indexed_file
-   {:name "lisp.txt"}
-   {:name "clojure.txt"}))
-
-(defn insert-rows-indexed-word
-  "Insert complete rows"
-  []
-  (sql/insert-records
-   :indexed_word
-   {:word "McCarthy"}
-   {:word "lisp"}
-   {:word "lambda"}
-   {:word "calculus"}
-   {:word "clojure"}
-   {:word "Hickey"}
-   {:word "egal"}
-   {:word "Whitehead"}))
-
-(defn insert-rows-doc-index
-  []
-  (sql/insert-rows
-   :document
-   [1 1]
-   [2 1]
-   [1 1]
-   [3 1]
-   [4 1]
-   [5 2]
-   [2 2]
-   [6 2]
-   [5 2]
-   [7 2]
-   [8 2]))
-
-(defn insert-into-doc-index
-  [file word num]
-  (sql-wrap/create-record :document {:indexed_file_id (:id (indexed-file file))
-                                      :indexed_word_id (:id (indexed-word word))}))
-
-(defn insert-rows-thes
-  "Insert complete rows"
-  []
-  (sql/insert-records
-   :thes
-   {:name "tech"}
-   {:name "philo"}))
-
-(defn insert-rows-word
-  "Insert complete rows"
-  []
-  (sql/insert-records
-   :word
-   {:word "lisp"}
-   {:word "clojure"}
-   {:word "lambda"}
-   {:word "calculus"}
-   {:word "Nietzsche"}
-   {:word "Whitehead"}
-   {:word "Buddha"}))
-
-(defn insert-rows-context
-  []
-  (sql/insert-rows
-   :context
-   [1 1 1]
-   [2 1 1]
-   [3 1 1]
-   [3 1 2]
-   [4 1 2]
-   [5 2 1]
-   [6 2 1]
-   [7 2 1]))
+  (add-thesauri)
+  (is (= 2 (count (sql/with-connection db-config (cxr.model.thes/find-all))))))
