@@ -62,6 +62,7 @@
       (.setRowHeight 20)
       (.setGridColor Color/black))
     (doto frame
+      (.setDefaultCloseOperation JFrame/EXIT_ON_CLOSE)
       (.add tpane)
       (.setLocation 300 180)
       (.setResizable false)
