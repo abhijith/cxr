@@ -14,11 +14,15 @@
 
 (defn words
   "all words from an indexed file"
-  [thes]
-  (map :word (qs {:cols [:word.word]
-                  :from [:word :thes]
-                  :through :context
-                  :and-where {:equal [[:thes.name thes]] }})))
+  ([thes]
+     (map :word (qs {:cols [:word.word]
+                     :from [:word :thes]
+                     :through :context
+                     :and-where {:equal [[:thes.name thes]] }})))
+  ([]
+     (map :word (qs {:cols [:word.word]
+                     :from [:word :thes]
+                     :through :context}))))
 
 (defn create
   [name md5]
