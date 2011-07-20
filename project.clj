@@ -13,4 +13,5 @@
                  [com/miglayout/miglayout "3.7.1"]]
   :dev-dependencies [[swank-clojure "1.2.1"]]
   :aot [cxr.db.tables cxr.swing.core]
+  :shell-wrapper true
   :main cxr.swing.core)
