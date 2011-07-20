@@ -10,7 +10,23 @@ Simple pdf indexer/search tool written in Clojure.
 
 ## Running
 
+Uberjar:
+
 java -jar cxr-0.1-standalone.jar
+
+Shell-wrapper: 
+
+1. Install
+
+$ lein install
+
+2. Copy to PATH
+
+$ cp ~/.lein/bin/cxr /usr/local/bin/
+
+3. Run!
+
+$ cxr # 
 
 ## License
 
