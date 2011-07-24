@@ -1,12 +1,12 @@
 (ns cxr.db.sqlwrap
   (:use [clojure.contrib.sql :as sql])
   (:use [clj-sql.core :as clj-sql :only (insert-record)])
-  (:use [clojure.contrib.string :only (join as-str)]))
+  (:use [clojure.contrib.string :only (join as-str substring?)]))
 
 (defn squote
   [x]
   (if (string? x)
-    (format (if (re-matches #"\'" x) "$$%s$$" "'%s'") x)
+    (format (if (substring? "'" x) "$$%s$$" "'%s'") x)
     x))
 
 (defn quotify
