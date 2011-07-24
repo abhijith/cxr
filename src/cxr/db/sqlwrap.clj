@@ -5,7 +5,9 @@
 
 (defn squote
   [x]
-  (if (string? x) (format "'%s'" x) x))
+  (if (string? x)
+    (format (if (re-matches #"\'" x) "$$%s$$" "'%s'") x)
+    x))
 
 (defn quotify
   [coll]
