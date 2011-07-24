@@ -4,7 +4,7 @@
              [seq-utils :only (indexed) :as seq-utils ] [io :only (read-lines) :as io] [sql :as sql] [string :only (replace-re) :as string]))
   (:use [cxr.db.config :only (db-config)])
   (:use [cxr.search.tokenizer :as tokenizer])
-  (:use (cxr.mime [core :only (pdf? text?)] [pdf :only (to-text convert)]))
+  (:use (cxr.mime [core :only (pdf? text?)] [pdf :only (convert)]))
   (:use [cxr.db.sqlwrap :only (qs find-record create-record)])
   (:import (java.security MessageDigest Security))
   (:require (cxr.model
@@ -65,7 +65,7 @@
   [f]
   (sql/with-connection db-config
     (let [fname (.getAbsolutePath (java.io.File. f))
-          out (if (pdf? fname) (convert fname) fname)]
+          out (if (pdf? fname) (convert fname :tmp-file "/tmp/cxr.out") fname)]
       (model.indexed-file/create fname)
       (doseq [[line coll] (prepare-file out) [offset word] coll]
         (do (model.indexed-word/create word)

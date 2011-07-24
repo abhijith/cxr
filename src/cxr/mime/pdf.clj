@@ -14,9 +14,8 @@
         (catch java.lang.NoClassDefFoundError e (println "gone" pdf-file))))))
 
 (defn convert
-  [fname]
-  (if (pdf? fname)
-    (let [name (string/replace-re #"\.pdf$" ".txt" fname)]
-      (to-text fname name)
-      name)
-    fname))
+  [fname & {:keys [tmp-file] :or {tmp-file (string/replace-re #"\.pdf$" ".txt" fname)}}]
+  (when (pdf? fname)
+    (to-text fname tmp-file))
+  tmp-file)
+
