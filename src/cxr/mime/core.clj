@@ -10,8 +10,8 @@
 
 (defn pdf?
   [f]
-  (re-matches #".*\.pdf$" f))
+  (boolean (re-matches #".*\.pdf$" f)))
 
 (defn text? 
   [f]
-  (re-matches #".*\.txt$" f))
+  (boolean (re-matches #".*\.txt$" f)))
