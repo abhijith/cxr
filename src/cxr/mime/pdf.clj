@@ -8,11 +8,12 @@
 (defn to-text
   [pdf-file txt-file]
   (let [stripper (PDFTextStripper.)]
-    (with-open [output (java.io.BufferedWriter. (java.io.FileWriter. txt-file))
-                document (PDDocument/load pdf-file true) ]
-      (try
-        (. stripper writeText document output)
-        (catch java.lang.NoClassDefFoundError e (log/error (str "to-text failed: " pdf-file)))))))
+    (try
+      (with-open [output (java.io.BufferedWriter. (java.io.FileWriter. txt-file))
+                  document (PDDocument/load pdf-file true) ]
+        (. stripper writeText document output))
+      (catch java.lang.NoClassDefFoundError e (log/error (str "to-text failed: " pdf-file)))
+      (catch java.lang.Exception e (log/error (str "to-text failed: " pdf-file))))))
 
 (defn convert
   [fname & {:keys [tmp-file] :or {tmp-file (string/replace-re #"\.pdf$" ".txt" fname)}}]
