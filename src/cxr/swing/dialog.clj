@@ -11,7 +11,7 @@
   (:require [cxr.globals :as globals]))
 
 
-(def msg-type { :info    JOptionPane/INFORMATION_MESSAGE
+(def msg-type {:info    JOptionPane/INFORMATION_MESSAGE
                :error   JOptionPane/ERROR_MESSAGE
                :warn    JOptionPane/WARNING_MESSAGE
                :message JOptionPane/PLAIN_MESSAGE

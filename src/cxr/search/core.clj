@@ -130,12 +130,13 @@
 (defn add-thes
   [f]
   (sql/with-connection db-config
-    (let [fname (.getAbsolutePath (java.io.File. f))]
+    (let [fname (.getAbsolutePath (java.io.File. f))
+          out (if (pdf? fname) (convert fname :tmp-file "/tmp/cxr-thes.out") fname)]
       (do (model.thes/create fname (md5 fname))
-          (doseq [[line coll] (prepare-file fname) [offset word] coll]
+          (doseq [[line coll] (prepare-file out) [offset word] coll]
             (do (model.word/create word)
-                (model.context/insert fname word line offset)
-                (cxr.model.thes/update fname true)))))))
+                (model.context/insert fname word line offset)))
+          (cxr.model.thes/update fname true)))))
 
 (defn- sort-result
   [res]
