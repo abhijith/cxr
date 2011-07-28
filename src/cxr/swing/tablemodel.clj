@@ -1,4 +1,5 @@
 (ns cxr.swing.tablemodel
+  (:gen-class)
   (:import (javax.swing.table AbstractTableModel))
   (:require [cxr.swing.combo :as combo])
   (:require [cxr.globals :as globals]))
