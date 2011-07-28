@@ -12,6 +12,6 @@
                                               com.sun.jmx/jmxri]]
                  [com/miglayout/miglayout "3.7.1"]]
   :dev-dependencies [[swank-clojure "1.2.1"]]
-  :aot [cxr.db.tables cxr.swing.core]
+  :aot [cxr.db.tables cxr.swing.core cxr.swing.tablemodel cxr.swing.events]
   :shell-wrapper true
   :main cxr.swing.core)

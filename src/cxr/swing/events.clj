@@ -1,4 +1,5 @@
 (ns cxr.swing.events
+  (:gen-class)
   (:import (javax.swing SwingUtilities))
   (:import (java.awt.event MouseAdapter ItemListener))
   (:require [cxr.swing.dialog :as dialog])
