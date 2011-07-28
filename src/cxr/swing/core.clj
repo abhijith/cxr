@@ -6,11 +6,10 @@
   (:import (java.awt Toolkit Dimension Color))
   (:use (clojure.contrib
          [miglayout :only (miglayout components)]
-         [swing-utils :only (make-menubar add-action-listener)]))
+         [swing-utils :only (add-action-listener)]))
   (:require [cxr.swing.tablemodel :as table] :reload)
   (:require [cxr.db.config :as config] :reload)
   (:require [cxr.db.tables :as db] :reload)
-  (:require [cxr.swing.menu :as menu] :reload)
   (:require [cxr.swing.combo :as combo] :reload)
   (:require [cxr.swing.dialog :as dialog] :reload)
   (:require [cxr.swing.events :as events] :reload)
