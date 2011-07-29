@@ -73,7 +73,7 @@
       (events/add-item-listener combo-box combo/combo-handler)
 
       (add-action-listener (:index-button (components ipanel))
-                           dialog/ask-open-dir 
+                           dialog/ask-open 
                            frame 
                            (fn [chooser]
                              (progress/indeterminate-progress-bar
@@ -93,7 +93,7 @@
                                      {:element (get-in agent-val [:element :name])}))) (:index-button (components ipanel))])))
 
       (add-action-listener (:button (components settings))
-                           dialog/ask-open-dir 
+                           dialog/ask-open
                            frame
                            (fn [chooser]
                              (progress/indeterminate-progress-bar

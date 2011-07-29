@@ -33,22 +33,12 @@
   [msg]
   (dialog (JPanel.) msg "info"))
 
-(defn ask-open-dir
+(defn ask-open
   [event parent f & args]
   (let [chooser (JFileChooser.)]
-    (.setFileSelectionMode chooser JFileChooser/DIRECTORIES_ONLY)
+    (.setFileSelectionMode chooser JFileChooser/FILES_AND_DIRECTORIES)
     (let [ ret (.showOpenDialog chooser parent)]
       (cond
        (= JFileChooser/APPROVE_OPTION ret) (apply f chooser args)
        (= JFileChooser/CANCEL_OPTION ret) nil
        :else :error))))
-
-(defn ask-open-file
-  [event frame f]
-  (let [chooser (JFileChooser.)]
-    (.setFileSelectionMode chooser JFileChooser/FILES_ONLY)
-    (let [ ret (.showOpenDialog chooser frame)]
-      (cond
-       (= JFileChooser/APPROVE_OPTION ret) (f (.getAbsolutePath (.getSelectedFile chooser)))
-       (= JFileChooser/CANCEL_OPTION ret) :cancelled
-       :else "error"))))
