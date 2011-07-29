@@ -32,12 +32,12 @@
                 (JProgressBar. 0 0) {:id :progress-panel :height 20 :width 760 :gapleft 5 :gapright 5 } )
         ipanel  (miglayout
                  (JPanel.)
-                 (JButton. "index") {:id :index-button :gapleft 5 :gapright 5 } :wrap
+                 (JButton. "Add File(s)") {:id :index-button :gapleft 5 :gapright 5 } :wrap
                  (JScrollPane. itable) {:id :result-panel :height 400 :width 760 :gapleft 5 :gapright 5 } :wrap
                  (JProgressBar. 0 10)  {:id :progress-panel :height 20 :width 760 :gapleft 5 :gapright 5 } )
         settings  (miglayout
                    (JPanel.)
-                   (JButton. "add") {:id :button :gapleft 5 :gapright 5 } :wrap
+                   (JButton. "Add File(s)") {:id :button :gapleft 5 :gapright 5 } :wrap
                    (JScrollPane. sw-table) {:id :sw-panel :height 400 :width 760 :gapleft 5 :gapright 5 } :wrap
                    (JProgressBar. 0 10)  {:id :progress-panel :height 20 :width 760 :gapleft 5 :gapright 5 } ) ]
     (doto tpane
