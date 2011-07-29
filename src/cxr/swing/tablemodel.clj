@@ -80,19 +80,19 @@
   [coll]
   (send index-table-data (fn [a e] e)
         (into []
-              (map (fn [rs] [(:name rs) (:indexed rs)]) coll))))
+              (map (fn [rs] [(:name rs) "No"]) coll))))
 
 (defn fill-thesauri-table
   [coll]
   (send thesauri-table-data (fn [a e] e)
         (into []
-              (map (fn [rs] [(:name rs) (:indexed rs)]) coll))))
+              (map (fn [rs] [(:name rs) "No"]) coll))))
 
 ;; update-(x,y) f & args
 (defn update-index-row
   [row]
-  (send index-table-data (fn [a] (assoc-in a [row 1] true))))
+  (send index-table-data (fn [a] (assoc-in a [row 1] "Yes"))))
 
 (defn update-thesauri-row
   [row]
-  (send thesauri-table-data (fn [a] (assoc-in a [row 1] true))))
+  (send thesauri-table-data (fn [a] (assoc-in a [row 1] "Yes"))))
