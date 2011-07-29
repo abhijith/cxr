@@ -15,7 +15,7 @@
                    (mouseClicked
                     [event]
                     (if (and (double-click? event) (SwingUtilities/isLeftMouseButton event))
-                      (sh/sh "xdg-open" (.getValueAt component (.getSelectedRow component) (.getSelectedColumn  component))))))]
+                      (sh/sh "/usr/bin/xdg-open" (.getValueAt component (.getSelectedRow component) (.getSelectedColumn  component))))))]
     (.addMouseListener component listener)
     listener))
 
