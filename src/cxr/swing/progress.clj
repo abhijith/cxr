@@ -56,7 +56,7 @@
   (let [indeterminate-agent (agent nil)]
     (doto pb
       (.setIndeterminate true)
-      (.setString "wah")
+      (.setString "Finding files ...")
       (.setStringPainted true))
     (send indeterminate-agent (fn [a args] (apply indeterminate-fn args)) indeterminate-args)
     (add-watch indeterminate-agent :indeterminate-agent
@@ -64,5 +64,5 @@
                  (if (coll? n)
                    (apply add-progress-listener pb n determinate-fn determinate-args)
                    (doto pb
-                     (.setString "wah")))))
+                     (.setString "Finding files ...")))))
     [pb indeterminate-agent]))
