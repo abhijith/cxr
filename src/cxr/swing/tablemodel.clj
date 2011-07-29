@@ -18,10 +18,12 @@
     (if-not (empty? word)
       (do
         (dosync (reset! globals/search-running true))
+        (send search-table-data (constantly []))
         (send cxr.swing.progress/search-done (constantly false))
         (send search-table-data (fn [a] (let [ result (into [] (map (fn [[k v]] [(:name k)]) ((deref combo/search-fn) word))) ]
                                          (send cxr.swing.progress/search-done (constantly true))
-                                         result)))))))
+                                         result))))
+      (send search-table-data (constantly [])))))
 
 (def search-table-model
      (proxy [AbstractTableModel] []
