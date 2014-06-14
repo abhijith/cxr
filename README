@@ -1,6 +1,6 @@
 # cxr 
 
-Simple pdf indexer/search tool written in Clojure.
+Indexer and thesauri-based search application written in clojure
 
 ## Building
 
